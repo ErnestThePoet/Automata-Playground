@@ -1,0 +1,12 @@
+@import "theme";
+@import "common";
+
+.divContentWrapper{
+    @include full-content-area-size;
+}
+
+.dfaToolbar{
+    position: fixed;
+    top: calc(#{$navbar-height} + 10px);
+    right: 10px;
+}

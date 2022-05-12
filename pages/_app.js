@@ -3,12 +3,14 @@ import { store } from "store/store";
 
 import { PAGE_INDEXES } from "store/router-actions";
 
-import LinkContainer from "components/LinkContainer";
+import LinkContainer from "components/link-container";
 
 import styles from "styles/app.module.scss";
 
 // global css must be added in _app.js
 import "bootstrap/dist/css/bootstrap.min.css";
+import "@fortawesome/fontawesome-free/css/fontawesome.min.css";
+import "@fortawesome/fontawesome-free/css/solid.min.css";
 
 import classnames from "classnames";
 

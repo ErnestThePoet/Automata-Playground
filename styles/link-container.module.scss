@@ -3,8 +3,7 @@
 .aNavItem {
     font-size: large;
 
-    margin: 0 20px;
-    padding: 5px 10px;
+    margin: 0 15px;
 
     transition-duration: 150ms;
 
@@ -13,6 +12,8 @@
 
 .aNavItemInactive{
     color: $navitem-color;
+
+    padding: 0;
 
     &:hover {
         color: $navitem-hover-color;
@@ -24,6 +25,8 @@
     background-color: white;
     color:$navbar-color;
     border-radius: 0.2em;
+
+    padding: 5px 10px;
 
     &:hover {
         color: $navbar-color;
