@@ -8,11 +8,92 @@
 }
 
 .navNav{
+    // add position:relative to enable z-index
+    position: relative;
     background-color: $navbar-color;
     height: $navbar-height;
+
+    box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.50);
+    z-index: $z-index-nav;
 }
 
-.spanDotSplitter{
-    color: white;
+.spanMenuIconWrapper{
+    position: absolute;
+    left: 10px;
+
+    width: $navbar-menu-icon-wrapper-size;
+    height: $navbar-menu-icon-wrapper-size;
+    border-radius: 50%;
+
+    transition-duration: 150ms;
+    cursor: pointer;
+
+    &:hover{
+        background-color: $navbar-menu-icon-wrapper-hover-color;
+    }
+}
+
+.spanMenuIconWrapperActive{
+    background-color: $navbar-menu-icon-wrapper-hover-color;
+}
+
+.iMenuIcon{
+    color: $navbar-menu-icon-color;
+}
+
+.spanTitle{
     user-select: none;
+    font-size: large;
+    color:$navbar-title-color;
+
+    font-family: 'Raleway', sans-serif;
+}
+
+.asideFunctionNav{
+    transform: translateX(-110%);
+    transition-duration: 200ms;
+
+    background-color: $aside-background-color;
+
+    position: absolute;
+    top: $navbar-height;
+    left: 0;
+    height:$content-area-height;
+    box-shadow: 1px 0px 10px 0px rgba(0, 0, 0, 0.50);
+
+    z-index: $z-index-aside;
+
+    ul{
+        margin: 0;
+        padding: 20px 10px;
+
+        li{
+            list-style: none;
+            color: $aside-function-nav-item-color;
+            font-size: 14px;
+        
+            margin-bottom: 10px;
+            padding: 5px 10px;
+        
+            border-radius: 4px;
+        
+            cursor: pointer;
+        
+            transition-duration: 50ms;
+
+            i{
+                width: 1em;
+                color: $aside-function-nav-item-icon-color;
+                margin-right: 15px;
+            }
+        
+            &:hover {
+                background-color: $aside-function-nav-item-hover-background-color;
+            }
+        }
+    }
+}
+
+.asideFunctionNavShow{
+    transform: translateX(0);
 }

@@ -1,7 +1,36 @@
 @import "../theme";
+@import "../layout-config";
 
 .divToolbarWrapper{
     width: fit-content;
-    height: 20px;
+    z-index: $z-index-toolbar;
 }
 
+.spanButtonWrapper{
+    margin: 5px;
+    padding: 8px 8px 5px;
+    border-radius: 5px;
+    background-color: $toolbar-button-background-color;
+    cursor: pointer;
+
+    user-select: none;
+
+    box-shadow: 1px 1px 5px -2px rgba(0, 0, 0, 0.50);
+
+    transition-duration: 100ms;
+
+    &:hover{
+        background-color: $toolbar-button-hover-background-color;
+    }
+}
+
+.iButtonIcon{
+    font-size: small;
+    color:$toolbar-button-icon-color;
+}
+
+.spanButtonText{
+    font-size: small;
+    margin-top: 3px;
+    color: $toolbar-button-text-color;
+}

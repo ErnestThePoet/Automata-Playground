@@ -1,1 +1,7 @@
-$navbar-height: 80px;
+$navbar-height: 60px;
+$content-area-height:calc(100vh - #{$navbar-height});
+$navbar-menu-icon-wrapper-size:40px;
+
+$z-index-nav:210;
+$z-index-aside:200;
+$z-index-toolbar:190;
