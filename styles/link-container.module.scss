@@ -1,0 +1,31 @@
+@import "theme";
+
+.aNavItem {
+    font-size: large;
+
+    margin: 0 20px;
+    padding: 5px 10px;
+
+    transition-duration: 150ms;
+
+    text-decoration: none;
+}
+
+.aNavItemInactive{
+    color: $navitem-color;
+
+    &:hover {
+        color: $navitem-hover-color;
+    }
+}
+
+.aNavItemActive {
+    font-weight: bold;
+    background-color: white;
+    color:$navbar-color;
+    border-radius: 0.2em;
+
+    &:hover {
+        color: $navbar-color;
+    }
+}

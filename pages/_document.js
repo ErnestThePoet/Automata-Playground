@@ -9,7 +9,11 @@ class MyDocument extends Document {
     render() {
         return (
             <Html>
-                <Head />
+                {/*This Head element affects all pages.*/}
+                <Head>
+                    <meta name="description" content="自由设计并运行你的自动机" />
+                    <link rel="icon" href="/favicon.ico" />
+                </Head>
                 <body style={{margin:0,padding:0}}>
                     <Main />
                     <NextScript />
