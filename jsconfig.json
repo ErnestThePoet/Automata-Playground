@@ -5,10 +5,12 @@
             "@/*": [
                 "/*"
             ],
-            "pages/*":["/pages/*"],
             "components/*":["/components/*"],
-            "styles/*":["/styles/*"],
-            "store/*":["/store/*"]
+            "locales/*":["/locales/*"],
+            "modules/*":["/modules/*"],
+            "observables/*":["/observables/*"],
+            "pages/*":["/pages/*"],
+            "styles/*":["/styles/*"]
         }
     }
 }

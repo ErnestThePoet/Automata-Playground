@@ -11,3 +11,7 @@
     left: 50%;
     transform: translateX(-50%);
 }
+
+.divCanvasWrapper{
+    @include full-parent-size;
+}

@@ -1,20 +1,23 @@
-import react from "react";
+import { observer } from "mobx-react-lite";
+import { APP_STATES } from "observables/app-state";
 
 import styles from "styles/dfa/dfa-toolbar.module.scss";
 
 import classnames from "classnames";
 
-export default class DfaToolbar extends react.Component{
-    constructor(props) {
-        super(props);
-    }
+const DfaToolbar = props => {
+    const onAddStateClick = () => {
+        props.appState.changeAppState(APP_STATES.ADD_STATE_SELECT_POSITION);
+        console.log(props.appState)
+    };
 
-    render = () => (
-        <div className={classnames(this.props.className,styles.divToolbarWrapper)}>
+    return (
+        <div className={classnames(props.className, styles.divToolbarWrapper)}>
             <div className="d-flex justify-content-center">
                 <span className={classnames(
                     styles.spanButtonWrapper,
-                    "d-flex flex-column align-items-center")}>
+                    "d-flex flex-column align-items-center")}
+                    onClick={onAddStateClick}>
                     <i className={classnames(styles.iButtonIcon, "fa-solid fa-circle-plus")}></i>
                     <span className={styles.spanButtonText}>添加状态</span>
                 </span>
@@ -43,3 +46,5 @@ export default class DfaToolbar extends react.Component{
         </div>
     )
 }
+
+export default observer(DfaToolbar);
