@@ -1,4 +1,5 @@
 import { makeAutoObservable } from "mobx";
+import { AUTOMATA_STATE_TYPES } from "./automata-state-types";
 
 export class DfaInstance{
     constructor() {
@@ -10,8 +11,16 @@ export class DfaInstance{
     }
 
     ///////////////////////////////// Observable /////////////////////////////////
+    // UI data
+    selectedGraphNodeId = 0;
+    selectedGraphEdgeUuid = "";
+    selectedStateName = "";
+    selectedStateType = AUTOMATA_STATE_TYPES.NORMAL;
+    // used to help subscribe array changes. it should always be changed after all others.
+    // in this app, the practice is to use it as an extra parameter in autorun.
+    reactivityCounter = 0;
     // one state in states and graphNodes share the same id
-    nextNodeId = 0;
+    nextStateId = 0;
     // used for automata running
     // element structure:
     /*
@@ -33,7 +42,7 @@ export class DfaInstance{
     /*
         GraphNode:{
             id:Number (guaranteed equal to State.id for same state),
-            label:String, 
+            label:String (guaranteed equal to State.name for same state), 
             group:Number,
             x:Number,
             y:Number
@@ -52,41 +61,43 @@ export class DfaInstance{
     graphEdges = [];
 
     ///////////////////////////////// ComputedFn /////////////////////////////////
-    // requirements: id(Number) must be valid
-    getStateNameById(id) {
-        return this.states.find(x => x.id === id).name;
-    }
-
-    // requirements: uuid(String) must be valid
-    getTransitionCharByUuid(uuid) {
-        return this.graphEdges.find(x => x.id === uuid).label;
-    }
-
+    // requirements: name(String)
     isStateNameUnique(name) {
         return this.states.find(x => x.name === name) === undefined;
+    }
+
+    ///////////////////////////////// Computed /////////////////////////////////
+    get selectedStateName() {
+        return this.states.find(x => x.id === this.selectedGraphNodeId).name;
+    }
+
+    get selectedStateType() {
+        return this.states.find(x => x.id === this.selectedGraphNodeId).type;
     }
 
     ///////////////////////////////// Action /////////////////////////////////
     // requirements: name(String) cannot be empty and must be unique; 
     // stateType(Number) has to be one of STATE_TYPES in automata-state-types.js;
-    // newX(Number); newY(Number)
+    // x(Number); y(Number)
     addState(name,stateType,x,y) {
         this.states.push({
-            id:this.nextNodeId,
+            id: this.nextStateId,
             name,
             type: stateType,
             transitions:[]
         });
 
         this.graphNodes.push({
-            id: this.nextNodeId,
+            id: this.nextStateId,
             label: name,
             group: stateType,
             x,
             y
         });
 
-        this.nextNodeId++;
+        this.nextStateId++;
+
+        this.reactivityCounter++;
     }
 
     // requirements:
@@ -102,19 +113,23 @@ export class DfaInstance{
             to: toId,
             label: char
         });
+
+        this.reactivityCounter++;
     }
 
-    // requirements: id(Number) has to be valid; newName(String) cannot be empty
-    editStateName(id, newName) {
-        this.states.find(x => x.id === id).name = newName;
-        this.graphNodes.find(x => x.id === id).name = newName;
-    }
+    // requirements: id(Number) has to be valid; 
+    // newName(String) cannot be empty; newX(Number); newY(Number)
+    editState(id, newName, newType, newX, newY) {
+        const targetState = this.states.find(x => x.id === id);
+        targetState.name = newName;
+        targetState.type = newType;
 
-    // requirements: id(Number) has to be valid; newX(Number); newY(Number)
-    editStatePosition(id, newX,newY) {
         const targetGraphNode = this.graphNodes.find(x => x.id === id);
+        targetGraphNode.name = newName;
         targetGraphNode.x = newX;
         targetGraphNode.y = newY;
+
+        this.reactivityCounter++;
     }
 
     // we did not supply an id when adding edges,
@@ -127,6 +142,8 @@ export class DfaInstance{
         this.states.find(x => x.id === selectedGraphEdge.from)
             .transitions.find(x => x.toId === selectedGraphEdge.to)
             .char = newChar;
+        
+        this.reactivityCounter++;
     }
 
     // requirements: id(Number) has to be valid
@@ -155,6 +172,8 @@ export class DfaInstance{
                 this.graphEdges.splice(i, 1);
             }
         }
+
+        this.reactivityCounter++;
     }
 
     // requirements: uuid(String) has to be valid
@@ -167,5 +186,7 @@ export class DfaInstance{
         transitionFromState.transitions.splice(
             transitionFromState.transitions.findIndex(
                 x => x.toId === edgeToBeRemoved.to), 1);
+        
+        this.reactivityCounter++;
     }
 }

@@ -1,0 +1,63 @@
+@import "../theme";
+@import "../layout-config";
+
+.propertyEditorWrapper{
+    background-color: $property-editor-background-color;
+    width: fit-content;
+    z-index: $z-index-property-editor;
+
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+}
+
+.spanStateTypeGroup{
+    font-size: 10px;
+}
+
+.inPropertyInput{
+    width: 40px;
+    padding: 5px;
+    
+    border: 0;
+    border-radius: 0.25rem;
+    outline: 0;
+}
+
+.inStateType{
+    width: 1em;
+    height: 1em;
+    margin-top: 0.25em;
+    background-color: #fff;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    border: 1px solid rgba(0, 0, 0, .25);
+    appearance: none;
+
+    border-radius: 50%;
+
+    &:checked{
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+}
+
+.lblStateType{
+    
+}
+
+.iConfirmCancel{
+    font-size: medium;
+    margin:0 3px;
+    cursor: pointer;
+}
+
+.iConfirm{
+    @extend .iConfirmCancel;
+    color: rgb(22,198,12);
+}
+
+.iCancel {
+    @extend .iConfirmCancel;
+    color: rgb(240,58,23);
+}

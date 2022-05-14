@@ -32,6 +32,9 @@ function initGraph(containerElement, onclick) {
         },
         interaction: {
             hover: true
+        },
+        physics: {
+            enabled:false
         }
     };
 
@@ -41,8 +44,12 @@ function initGraph(containerElement, onclick) {
 }
 
 
-function updateGraph(newData) {
-    network.setData(newData);
+function updateGraph(nodes, edges) {
+    // store previous view properties to avoid vis.js auto view move
+    const previousScale = network.getScale();
+    const previousViewPosition = network.getViewPosition();
+
+    network.setData({ nodes, edges });
 
     let newColorOptions = {
         groups: {
@@ -73,6 +80,13 @@ function updateGraph(newData) {
     };
     
     network.setOptions(newColorOptions);
+
+    // restore previous view properties
+    network.moveTo({
+        position: previousViewPosition,
+        scale: previousScale,
+        offset: { x: 0, y: 0 }
+    });
 }
 
 export { initGraph, updateGraph };

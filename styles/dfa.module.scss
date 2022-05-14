@@ -5,6 +5,10 @@
     @include full-content-area-size;
 }
 
+.dfaPropertyEditor{
+    position: absolute;
+}
+
 .dfaToolbar{
     position: fixed;
     bottom: 10px;

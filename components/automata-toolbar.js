@@ -1,14 +1,18 @@
 import { observer } from "mobx-react-lite";
 import { APP_STATES } from "observables/app-state";
 
-import styles from "styles/dfa/dfa-toolbar.module.scss";
+import styles from "styles/automata-toolbar.module.scss";
 
 import classnames from "classnames";
 
+// props requires pageAppState, pageDfaInstance
 const DfaToolbar = props => {
     const onAddStateClick = () => {
         props.appState.changeAppState(APP_STATES.ADD_STATE_SELECT_POSITION);
-        console.log(props.appState)
+    };
+
+    const onAddTransitionClick = () => {
+        //props.appState.changeAppState(APP_STATES.ADD_TRA);
     };
 
     return (
@@ -24,7 +28,8 @@ const DfaToolbar = props => {
 
                 <span className={classnames(
                     styles.spanButtonWrapper,
-                    "d-flex flex-column align-items-center")}>
+                    "d-flex flex-column align-items-center")}
+                    onClick={onAddTransitionClick}>
                     <i className={classnames(styles.iButtonIcon, "fa-solid fa-arrow-right-long")}></i>
                     <span className={styles.spanButtonText}>添加转移</span>
                 </span>

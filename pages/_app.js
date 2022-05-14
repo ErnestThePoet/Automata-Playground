@@ -18,6 +18,17 @@ class MyApp extends react.Component {
         };
     }
 
+    automataPageRef = react.createRef();
+
+    // must not use func(){} syntax or this will not point to this component.
+    importAutomataAtfString=()=> {
+        this.automataPageRef.current.loadAutomataAtfString();
+    }
+
+    exportAutomataAtfString = () => {
+        this.automataPageRef.current.exportAutomataAtfString();
+    }
+
     render = () => {
         const { Component, pageProps } = this.props;
 
@@ -61,11 +72,14 @@ class MyApp extends react.Component {
                             </li>
                         </Link>
 
-                        <li className={styles.liFunctionNavItem}>
+                        <li className={styles.liFunctionNavItem}
+                            onClick={this.importAutomataAtfString}>
                             <i className="fa-solid fa-file-import"></i>
                             导入
                         </li>
-                        <li className={styles.liFunctionNavItem}>
+                        <li className={styles.liFunctionNavItem}
+                            onClick={this.exportAutomataAtfString}
+                            >
                             <i className="fa-solid fa-file-arrow-down"></i>
                             保存
                         </li>
@@ -75,7 +89,7 @@ class MyApp extends react.Component {
                         </li>
                     </ul>
                 </aside>
-                <Component {...pageProps} />
+                <Component {...pageProps} ref={this.automataPageRef} />
             </div>
         )
     }
