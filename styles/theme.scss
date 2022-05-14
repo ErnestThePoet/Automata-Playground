@@ -7,10 +7,21 @@ $aside-background-color:white;
 $aside-function-nav-item-color:black;
 $aside-function-nav-item-icon-color: rgb(118,118,118);
 $aside-function-nav-item-hover-background-color: rgba(0,0,0,0.1);
+$aside-function-nav-item-active-background-color: rgba(0,0,0,0.2);
 
 $toolbar-button-background-color:white;
 $toolbar-button-hover-background-color: rgba(0, 0, 0, 0.05);
+$toolbar-button-active-background-color: rgba(0, 0, 0, 0.1);
 $toolbar-button-icon-color: rgb(50,50,50);
 $toolbar-button-text-color: rgb(50, 50, 50);
 
 $property-editor-background-color:white;
+$property-editor-input-background-color:rgba(0,0,0,0.3);
+$property-editor-input-border-color:rgba(0, 0, 0, .25);
+$property-editor-state-type-radio-color:#fd9d0d;
+$property-editor-confirm-color:rgb(22, 198, 12);
+$property-editor-cancel-color: rgb(240, 58, 23);
+$property-editor-confirm-hover-background-color:rgba(22, 198, 12,0.2);
+$property-editor-cancel-hover-background-color: rgba(240, 58, 23,0.2);
+$property-editor-confirm-active-background-color: rgba(22, 198, 12, 0.3);
+$property-editor-cancel-active-background-color: rgba(240, 58, 23,0.3);

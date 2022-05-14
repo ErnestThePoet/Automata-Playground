@@ -57,13 +57,6 @@ class MyApp extends react.Component {
                                 新建DFA
                             </li>
                         </Link>
-                        
-                        <Link href="/pda">
-                            <li className={styles.liFunctionNavItem}>
-                                <i className="fa-solid fa-plus"></i>
-                                新建PDA
-                            </li>
-                        </Link>
 
                         <Link href="/tm">
                             <li className={styles.liFunctionNavItem}>

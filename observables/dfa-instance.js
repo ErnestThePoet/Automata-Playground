@@ -1,21 +1,17 @@
 import { makeAutoObservable } from "mobx";
-import { AUTOMATA_STATE_TYPES } from "./automata-state-types";
+import { AUTOMATA_STATE_TYPES } from "observables/automata-state-types";
 
 export class DfaInstance{
     constructor() {
         makeAutoObservable(this, {
             getStateNameById: false,
+            getStateTypeById:false,
             getTransitionCharByUuid:false,
             isStateNameUnique: false
         });
     }
 
     ///////////////////////////////// Observable /////////////////////////////////
-    // UI data
-    selectedGraphNodeId = 0;
-    selectedGraphEdgeUuid = "";
-    selectedStateName = "";
-    selectedStateType = AUTOMATA_STATE_TYPES.NORMAL;
     // used to help subscribe array changes. it should always be changed after all others.
     // in this app, the practice is to use it as an extra parameter in autorun.
     reactivityCounter = 0;
@@ -66,14 +62,25 @@ export class DfaInstance{
         return this.states.find(x => x.name === name) === undefined;
     }
 
-    ///////////////////////////////// Computed /////////////////////////////////
-    get selectedStateName() {
-        return this.states.find(x => x.id === this.selectedGraphNodeId).name;
+    // requirements: id(Number) must be valid
+    getStateNameById(id) {
+        const targetState = this.states.find(x => x.id === id);
+        return targetState?targetState.name:"";
     }
 
-    get selectedStateType() {
-        return this.states.find(x => x.id === this.selectedGraphNodeId).type;
+    // requirements: id(Number) must be valid
+    getStateTypeById(id) {
+        const targetState = this.states.find(x => x.id === id);
+        return targetState ? targetState.type : AUTOMATA_STATE_TYPES.NORMAL;
     }
+
+    // requirements: uuid(String) must be valid
+    getTransitionCharByUuid(uuid) {
+        const targetGraphEdge = this.graphEdges.find(x => x.id === uuid);
+        return targetGraphEdge ? targetGraphEdge.label : "";
+    }
+
+    ///////////////////////////////// Computed /////////////////////////////////
 
     ///////////////////////////////// Action /////////////////////////////////
     // requirements: name(String) cannot be empty and must be unique; 
@@ -117,17 +124,32 @@ export class DfaInstance{
         this.reactivityCounter++;
     }
 
-    // requirements: id(Number) has to be valid; 
+    // requirements: id(Number) has to be valid;
     // newName(String) cannot be empty; newX(Number); newY(Number)
+    // if either of the new properties above is null or undefined, it will not be updated.
     editState(id, newName, newType, newX, newY) {
         const targetState = this.states.find(x => x.id === id);
-        targetState.name = newName;
-        targetState.type = newType;
+        if (newName!=null) {
+            targetState.name = newName;
+        }
+        
+        if (newType != null) {
+            targetState.type = newType;
+        }
 
         const targetGraphNode = this.graphNodes.find(x => x.id === id);
-        targetGraphNode.name = newName;
-        targetGraphNode.x = newX;
-        targetGraphNode.y = newY;
+
+        if (newName != null) {
+            targetGraphNode.name = newName;
+        }
+        
+        if (newX != null) {
+            targetGraphNode.x = newX;
+        }
+
+        if (newY != null) {
+            targetGraphNode.y = newY;
+        }
 
         this.reactivityCounter++;
     }

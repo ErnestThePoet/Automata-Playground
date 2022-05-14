@@ -7,13 +7,32 @@ import classnames from "classnames";
 
 // props requires pageAppState, pageDfaInstance
 const DfaToolbar = props => {
-    const onAddStateClick = () => {
-        props.appState.changeAppState(APP_STATES.ADD_STATE_SELECT_POSITION);
+    const onAddStateClick = e => {
+        e.stopPropagation();
+
+        // when adding a state, press again will exit adding
+        if (props.appState.currentState === APP_STATES.ADD_STATE_SELECT_POSITION) {
+            props.appState.changeAppState(APP_STATES.NORMAL);
+        }
+        // except when running automata, on any other state we enter add state mode
+        else if (props.appState.currentState !== APP_STATES.RUN_AUTOMATA) {
+            props.appState.changeAppState(APP_STATES.ADD_STATE_SELECT_POSITION);
+        }
     };
 
-    const onAddTransitionClick = () => {
-        //props.appState.changeAppState(APP_STATES.ADD_TRA);
+    const onAddTransitionClick = e => {
+        e.stopPropagation();
+
+        if (props.appState.currentState === APP_STATES.ADD_TRANSITION_SELECT_ORIG
+            || props.appState.currentState === APP_STATES.ADD_TRANSITION_SELECT_DEST) {
+            props.appState.changeAppState(APP_STATES.NORMAL);
+        }
+        else if (props.appState.currentState !== APP_STATES.RUN_AUTOMATA) {
+            props.appState.changeAppState(APP_STATES.ADD_TRANSITION_SELECT_ORIG);
+        }
     };
+
+    
 
     return (
         <div className={classnames(props.className, styles.divToolbarWrapper)}>

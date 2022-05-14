@@ -61,6 +61,8 @@
     height:$content-area-height;
     box-shadow: 1px 0px 10px 0px rgba(0, 0, 0, 0.50);
 
+    user-select: none;
+
     z-index: $z-index-aside;
 
     ul{
@@ -89,6 +91,10 @@
         
             &:hover {
                 background-color: $aside-function-nav-item-hover-background-color;
+            }
+
+            &:active{
+                background-color: $aside-function-nav-item-active-background-color;
             }
         }
     }
