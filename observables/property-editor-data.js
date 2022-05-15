@@ -13,9 +13,9 @@ export class PropertyEditorData{
 
     // updated on click or when adding states or transitions
     selectedGraphNodeId = 0;
-    selectedGraphEdgeUuid = "";
+    selectedGraphEdgeId = "";
     // user modifiable
-    editorInputTexts = [""];
+    editorInputTexts = ["","",""];
     selectedStateType = AUTOMATA_STATE_TYPES.NORMAL;
 
     isInvalidInputWarningShow = false;
@@ -31,8 +31,8 @@ export class PropertyEditorData{
         this.selectedGraphNodeId = id;
     }
 
-    setSelectedGraphEdgeUuid(uuid) {
-        this.selectedGraphEdgeUuid = uuid;
+    setSelectedGraphEdgeId(id) {
+        this.selectedGraphEdgeId = id;
     }
 
     setEditorInputText(text,index) {

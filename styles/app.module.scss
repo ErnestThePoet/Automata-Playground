@@ -103,3 +103,21 @@
 .asideFunctionNavShow{
     transform: translateX(0);
 }
+
+.divAlert{
+    position: fixed;
+    left: 50%;
+    top: calc(#{$navbar-height} + 10px);
+    transform: translateX(-50%);
+    width: fit-content;
+
+    padding: 1rem 1rem;
+    border: 1px solid transparent;
+    border-radius: 10px;
+
+    background-color: $alert-background-color;
+    color: $alert-text-color;
+    border-color: $alert-border-color;
+
+    z-index: $z-index-alert;
+}

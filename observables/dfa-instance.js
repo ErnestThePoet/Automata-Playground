@@ -1,12 +1,17 @@
 import { makeAutoObservable } from "mobx";
-import { AUTOMATA_STATE_TYPES } from "observables/automata-state-types";
+import { AUTOMATA_STATE_TYPES,toGraphNodeGroup } from "observables/automata-state-types";
+
+function getLabelFromTransitionChars(chars) {
+    return chars.join(",");
+}
 
 export class DfaInstance{
     constructor() {
         makeAutoObservable(this, {
             getStateNameById: false,
-            getStateTypeById:false,
-            getTransitionCharByUuid:false,
+            getStateTypeById: false,
+            getEdgeId: false,
+            getTransitionCharSeqById:false,
             isStateNameUnique: false
         });
     }
@@ -17,6 +22,8 @@ export class DfaInstance{
     reactivityCounter = 0;
     // one state in states and graphNodes share the same id
     nextStateId = 0;
+    // for adding in graphEdges. It will be converted to String when adding edge.
+    nextEdgeId = 0;
     // used for automata running
     // element structure:
     /*
@@ -27,7 +34,7 @@ export class DfaInstance{
             transitions:Array<{
                 to:State, 
                 toId:Number, 
-                char:String
+                chars:Array<String>
             }>
         }
     */
@@ -49,9 +56,10 @@ export class DfaInstance{
     // element structure:
     /*
         GraphEdge:{
+            id:String
             from:Number (from Id), 
             to:Number (to Id),
-            label:String (guaranteed equal to State.Transition.char for same transition)
+            label:String (UI-friendly form)
         }
     */
     graphEdges = [];
@@ -74,10 +82,22 @@ export class DfaInstance{
         return targetState ? targetState.type : AUTOMATA_STATE_TYPES.NORMAL;
     }
 
-    // requirements: uuid(String) must be valid
-    getTransitionCharByUuid(uuid) {
-        const targetGraphEdge = this.graphEdges.find(x => x.id === uuid);
-        return targetGraphEdge ? targetGraphEdge.label : "";
+    // requirements: fromId(Number), toId(Number) must be valid
+    getEdgeId(fromId, toId) {
+        const targetEdge = this.graphEdges.find(x => x.fromId === fromId && x.toId === toId);
+        return targetEdge ? targetEdge.id : "";
+    }
+
+    // requirements: id(String) must be valid
+    getTransitionCharSeqById(id) {
+        const targetGraphEdge = this.graphEdges.find(x => x.id === id);
+        if (!targetGraphEdge) {
+            return [];
+        }
+        const targetTransition =
+            this.states.find(x => x.id === targetGraphEdge.from)
+                .transitions.find(x => x.toId === targetGraphEdge.to);
+        return targetTransition ? targetTransition.chars.join("") : "";
     }
 
     ///////////////////////////////// Computed /////////////////////////////////
@@ -85,7 +105,7 @@ export class DfaInstance{
     ///////////////////////////////// Action /////////////////////////////////
     // requirements: name(String) cannot be empty and must be unique; 
     // stateType(Number) has to be one of STATE_TYPES in automata-state-types.js;
-    // x(Number); y(Number)
+    // x(Number); y(Number) are canvas coords
     addState(name,stateType,x,y) {
         this.states.push({
             id: this.nextStateId,
@@ -97,7 +117,7 @@ export class DfaInstance{
         this.graphNodes.push({
             id: this.nextStateId,
             label: name,
-            group: stateType,
+            group: toGraphNodeGroup(stateType),
             x,
             y
         });
@@ -109,17 +129,38 @@ export class DfaInstance{
 
     // requirements:
     // fromId(Number) and toId(Number) have to be valid;
-    // char(String) must contain only one character; 
-    // this transition has to be unique
-    addTransition(fromId, toId, char) {
-        const toState = this.states.find(x => x.id === toId);
-        this.states.find(x => x.id === fromId).transitions.push({ to: toState,toId, char });
-        
-        this.graphEdges.push({
-            from: fromId,
-            to: toId,
-            label: char
-        });
+    // charSeq(String) length>0;
+    // this transition does not need to be unique; only new transitions will be added
+    addTransition(fromId, toId, charSeq) {
+        const chars = charSeq.split("");
+
+        const fromTransitions = this.states.find(x => x.id === fromId).transitions;
+        const fromTransition = fromTransitions.find(x => x.toId === toId);
+        // if a transition to To state already exists, then simply merge the chars
+        if (fromTransition) {
+            for (const i of chars) {
+                if (!fromTransition.chars.includes(i)) {
+                    fromTransition.chars.push(i);
+                }
+            }
+
+            this.graphEdges.find(x => x.from === fromId && x.to === toId).label =
+                getLabelFromTransitionChars(fromTransition.chars);
+        }
+        // otherwise add a new transition
+        else {
+            const toState = this.states.find(x => x.id === toId);
+            fromTransitions.push({ to: toState, toId, chars });
+
+            this.graphEdges.push({
+                id: this.nextEdgeId.toString(),
+                from: fromId,
+                to: toId,
+                label: getLabelFromTransitionChars(chars)
+            });
+
+            this.nextEdgeId++;
+        }
 
         this.reactivityCounter++;
     }
@@ -129,18 +170,16 @@ export class DfaInstance{
     // if either of the new properties above is null or undefined, it will not be updated.
     editState(id, newName, newType, newX, newY) {
         const targetState = this.states.find(x => x.id === id);
+        const targetGraphNode = this.graphNodes.find(x => x.id === id);
+        
         if (newName!=null) {
             targetState.name = newName;
+            targetGraphNode.label = newName;
         }
         
         if (newType != null) {
             targetState.type = newType;
-        }
-
-        const targetGraphNode = this.graphNodes.find(x => x.id === id);
-
-        if (newName != null) {
-            targetGraphNode.name = newName;
+            targetGraphNode.group = toGraphNodeGroup(newType);
         }
         
         if (newX != null) {
@@ -155,15 +194,19 @@ export class DfaInstance{
     }
 
     // we did not supply an id when adding edges,
-    // so we will get the uuid that vis.js internally provided in click event.
-    // requirements: uuid(String) has to be valid; newChar(String) must contain only one character
-    editTransition(uuid, newChar) {
-        const selectedGraphEdge = this.graphEdges.find(x => x.id === uuid);
-        selectedGraphEdge.label = newChar;
+    // so we will get the id that vis.js internally provided in click event.
+    // requirements: id(String) has to be valid; 
+    // newCharSeq(String) length>0
+    editTransition(id, newCharSeq) {
+        const newChars = newCharSeq.split("");
+
+        const selectedGraphEdge = this.graphEdges.find(x => x.id === id);
+
+        selectedGraphEdge.label = getLabelFromTransitionChars(newChars);
 
         this.states.find(x => x.id === selectedGraphEdge.from)
             .transitions.find(x => x.toId === selectedGraphEdge.to)
-            .char = newChar;
+            .chars = newChars;
         
         this.reactivityCounter++;
     }
@@ -198,10 +241,10 @@ export class DfaInstance{
         this.reactivityCounter++;
     }
 
-    // requirements: uuid(String) has to be valid
-    removeTransition(uuid) {
+    // requirements: id(String) has to be valid
+    removeTransition(id) {
         const edgeToBeRemoved =
-            this.graphEdges.splice(this.graphEdges.findIndex(x => x.id === uuid), 1)[0];
+            this.graphEdges.splice(this.graphEdges.findIndex(x => x.id === id), 1)[0];
         
         const transitionFromState = this.states.find(x => x.id === edgeToBeRemoved.from);
 

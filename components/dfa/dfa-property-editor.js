@@ -27,8 +27,8 @@ export default observer(props => {
                 break;
             
             case APP_STATES.EDIT_TRANSITION:
-                if (e.target.value.length !== 1) {
-                    props.propertyEditorData.showInvalidInputWarning("转移只能消耗一个字符");
+                if (e.target.value.length === 0) {
+                    props.propertyEditorData.showInvalidInputWarning("消耗的字符列表不能为空");
                     return;
                 }
 
@@ -61,7 +61,7 @@ export default observer(props => {
 
             case APP_STATES.EDIT_TRANSITION:
                 props.dfaInstance.editTransition(
-                    props.propertyEditorData.selectedGraphEdgeUuid,
+                    props.propertyEditorData.selectedGraphEdgeId,
                     props.propertyEditorData.editorInputTexts[0]
                 );
 
@@ -81,6 +81,11 @@ export default observer(props => {
             className={classnames(
             props.className, styles.propertyEditorWrapper, "d-flex align-items-center")}
             style={props.style}>
+                
+            <label className={styles.lblTransitionCharsTip}
+                style={{ display: props.appState === APP_STATES.EDIT_TRANSITION ? "block" : "none" }}>
+                合并多个消耗字符请连续输入, 如01
+            </label>
             
             <input
                 className={styles.inPropertyInput}
@@ -94,7 +99,9 @@ export default observer(props => {
                 {props.propertyEditorData.invalidInputWarningText}
             </label>
             
-            <span className={styles.spanStateTypeGroup}>
+            <span className={styles.spanStateTypeGroup} style={{
+                display:props.appState.currentState===APP_STATES.EDIT_STATE?"inline":"none"
+            }}>
                 {/* the bind is a must or there will be a 'too maly renders' error.*/}
                 <div className="d-flex align-items-center"
                     onClick={onStateTypeChange.bind(this,AUTOMATA_STATE_TYPES.START)}>
