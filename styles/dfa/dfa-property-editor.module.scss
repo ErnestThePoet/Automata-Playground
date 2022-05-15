@@ -8,6 +8,8 @@
     padding: 0 10px;
     z-index: $z-index-property-editor;
 
+    user-select: none;
+
     border-radius: 10px;
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
 }

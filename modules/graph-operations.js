@@ -1,8 +1,8 @@
-import vis from "vis";
+import {Network} from "vis-network";
 
 let network = undefined;
 
-function initGraph(containerElement, onclick) {
+export function initGraph(containerElement, onClick,dragEnd) {
     const options = {
         nodes: {
             shape: "circle",
@@ -38,13 +38,13 @@ function initGraph(containerElement, onclick) {
         }
     };
 
-    network = new vis.Network(containerElement, {}, options);
+    network = new Network(containerElement, {}, options);
 
-    network.on("click", onclick);
+    network.on("click", onClick);
+    network.on("dragEnd", dragEnd);
 }
 
-
-function updateGraph(nodes, edges) {
+export function updateGraph(nodes, edges) {
     // store previous view properties to avoid vis.js auto view move
     const previousScale = network.getScale();
     const previousViewPosition = network.getViewPosition();
@@ -89,4 +89,6 @@ function updateGraph(nodes, edges) {
     });
 }
 
-export { initGraph, updateGraph };
+export function getNodePosition(id) {
+    return network.getPosition(id);
+}

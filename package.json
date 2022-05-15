@@ -19,7 +19,7 @@
     "react": "18.1.0",
     "react-dom": "18.1.0",
     "sass": "^1.51.0",
-    "vis": "^4.21.0-EOL"
+    "vis-network": "^9.1.2"
   },
   "devDependencies": {
     "eslint": "8.15.0",

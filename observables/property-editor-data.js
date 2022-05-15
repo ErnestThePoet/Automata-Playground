@@ -6,6 +6,7 @@ export class PropertyEditorData{
         makeAutoObservable(this);
     }
 
+    isPropertyEditorPositionAdjusted = false;
     // property editor position
     propertyEditorTop = 0;
     propertyEditorLeft = 0;
@@ -20,9 +21,10 @@ export class PropertyEditorData{
     isInvalidInputWarningShow = false;
     invalidInputWarningText = "";
 
-    setPropertyEditorPosition(top, left) {
+    setPropertyEditorPosition(top, left, isAdjusted) {
         this.propertyEditorTop = top;
         this.propertyEditorLeft = left;
+        this.isPropertyEditorPositionAdjusted = isAdjusted;
     }
 
     setSelectedGraphNodeId(id) {
@@ -52,7 +54,10 @@ export class PropertyEditorData{
     }
 
     clearPropertyEditor() {
-        this.editorInputTexts = "";
+        for (let i = 0; i < this.editorInputTexts.length; i++){
+            this.editorInputTexts[i] = "";
+        }
+        this.isPropertyEditorPositionAdjusted = false;
         this.hideInvalidInputWarning();
     }
 }

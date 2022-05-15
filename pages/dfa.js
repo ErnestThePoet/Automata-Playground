@@ -10,7 +10,7 @@ import { PropertyEditorData } from "observables/property-editor-data";
 import DfaPropertyEditor from "components/dfa/dfa-property-editor";
 import AutomataToolbar from "components/automata-toolbar";
 
-import { handleGraphClick } from "modules/dfa/dfa-page-operations";
+import { handleGraphClick,handleGraphDragEnd } from "modules/dfa/dfa-page-operations";
 import { initGraph, updateGraph } from "modules/graph-operations";
 
 import styles from "styles/dfa.module.scss";
@@ -35,8 +35,18 @@ export default class DfaPage extends react.Component {
     }
 
     componentDidMount = () => {
-        initGraph(document.getElementById("div-canvas-wrapper"), e => {
-            handleGraphClick(e, this.pageAppState, this.pageDfaInstance,this.pagePropertyEditorData);
+        initGraph(document.getElementById("div-canvas-wrapper"),
+            e => {
+                handleGraphClick(
+                    e, this.pageAppState, this.pageDfaInstance, this.pagePropertyEditorData);
+            },
+            e => {
+                handleGraphDragEnd(
+                    e,
+                    this.pageAppState,
+                    this.pageDfaInstance,
+                    this.pagePropertyEditorData,
+                    this.adjustPropertyEditorPosition);
         });
 
         // auto update graph when dfa changes
@@ -71,38 +81,41 @@ export default class DfaPage extends react.Component {
         });
     }
 
-    componentDidUpdate = () => {
-        // properly adjust property editor position based on its size and screen size.
-        // we try to place it center beneath the click point. if this exceeds window boundary,
-        // then we make it inside.
-        // must be done here instead of when click event happened because propertyEditorWrapper may not
-        // be present then.
-        if (this.pageAppState.currentState === APP_STATES.EDIT_STATE
-            || this.pageAppState.currentState === APP_STATES.EDIT_TRANSITION) {
-            const propertyEditorWrapper = document.getElementById("propertyEditorWrapper");
+    adjustPropertyEditorPosition=()=> {
+        if ((this.pageAppState.currentState === APP_STATES.EDIT_STATE
+            || this.pageAppState.currentState === APP_STATES.EDIT_TRANSITION)
+            && !this.pagePropertyEditorData.isPropertyEditorPositionAdjusted) {
+            const canvasWrapper = document.getElementById("div-canvas-wrapper");
+            const propertyEditorWrapper = document.getElementById("property-editor-wrapper");
 
-            if (propertyEditorWrapper) {
+            if (canvasWrapper && propertyEditorWrapper) {
                 // top and left to make property editor center beneath click point.
                 // top and left stored in pagePropertyEditorData is click point.
                 const verticalAdjustmentPx = 30;
+
+                const boundaryLeft = canvasWrapper.clientLeft;
+                const boundaryTop = canvasWrapper.clientTop;
+                const boundaryRight = canvasWrapper.clientLeft + canvasWrapper.clientWidth;
+                const boundaryBottom = canvasWrapper.clientTop + canvasWrapper.clientHeight;
+
                 let targetTop = this.pagePropertyEditorData.propertyEditorTop + verticalAdjustmentPx;
                 let targetLeft =
                     this.pagePropertyEditorData.propertyEditorLeft - propertyEditorWrapper.clientWidth / 2;
                 // calculate right side position
                 const propertyEditorRight = targetLeft + propertyEditorWrapper.clientWidth;
-                
+
                 // if right side exceeds screen boundary, then align right screen boundary
-                if (propertyEditorRight > window.innerWidth) {
-                    targetLeft -= propertyEditorRight - window.innerWidth;
+                if (propertyEditorRight > boundaryRight) {
+                    targetLeft -= propertyEditorRight - boundaryRight;
                 }
 
                 // if left side exceeds screen boundary, then align left screen boundary
-                if (targetLeft < 0) {
-                    targetLeft = 0;
+                if (targetLeft < boundaryLeft) {
+                    targetLeft = boundaryLeft;
                 }
 
                 // if bottom exceeds screen bottom, then make property editor above click point
-                if (targetTop + propertyEditorWrapper.clientHeight > window.innerHeight) {
+                if (targetTop + propertyEditorWrapper.clientHeight > boundaryBottom) {
                     targetTop =
                         this.pagePropertyEditorData.propertyEditorTop
                         - verticalAdjustmentPx
@@ -110,13 +123,22 @@ export default class DfaPage extends react.Component {
                 }
 
                 // if the adjustment made it exceed screen top, then simply align screen top
-                if (targetTop < 0) {
-                    targetTop = 0;
+                if (targetTop < boundaryTop) {
+                    targetTop = boundaryTop;
                 }
 
-                this.pagePropertyEditorData.setPropertyEditorPosition(targetTop, targetLeft);
+                this.pagePropertyEditorData.setPropertyEditorPosition(targetTop, targetLeft, true);
             }
         }
+    }
+
+    componentDidUpdate = () => {
+        // properly adjust property editor position based on its size and screen size.
+        // we try to place it center beneath the click point. if this exceeds window boundary,
+        // then we make it inside.
+        // must be done here instead of when click event happened because propertyEditorWrapper may not
+        // be present then.
+        this.adjustPropertyEditorPosition();
     }
 
     pageDfaInstance = new DfaInstance();
@@ -139,8 +161,12 @@ export default class DfaPage extends react.Component {
                 propertyEditorData={propertyEditorData}
                 className={styles.dfaPropertyEditor}
                 style={{
-                    top: propertyEditorData.propertyEditorTop,
-                    left: propertyEditorData.propertyEditorLeft
+                    top: propertyEditorData.isPropertyEditorPositionAdjusted
+                        ? propertyEditorData.propertyEditorTop
+                        :0,
+                    left: propertyEditorData.isPropertyEditorPositionAdjusted
+                        ? propertyEditorData.propertyEditorLeft
+                        :0
                     }} />
             }
             

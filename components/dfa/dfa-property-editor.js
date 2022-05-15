@@ -77,10 +77,10 @@ export default observer(props => {
     };
 
     return (
-        <div id="propertyEditorWrapper"
+        <div id="property-editor-wrapper"
             className={classnames(
             props.className, styles.propertyEditorWrapper, "d-flex align-items-center")}
-        style={props.style}>
+            style={props.style}>
             
             <input
                 className={styles.inPropertyInput}
@@ -118,12 +118,18 @@ export default observer(props => {
                 </div>
             </span>
 
-            <span className={classnames(styles.spanConfirmWrapper,"d-flex justify-content-center align-items-center")}>
-                <i className="fa-solid fa-check" onClick={onConfirmClick}></i>
+            <span className={classnames(
+                styles.spanConfirmWrapper,
+                "d-flex justify-content-center align-items-center")}
+                onClick={onConfirmClick}>
+                <i className="fa-solid fa-check"></i>
             </span>
             
-            <span className={classnames(styles.spanCancelWrapper, "d-flex justify-content-center align-items-center")}>
-                <i className="fa-solid fa-xmark" onClick={onCancelClick}></i>
+            <span className={classnames(
+                styles.spanCancelWrapper,
+                "d-flex justify-content-center align-items-center")}
+                onClick={onCancelClick}>
+                <i className="fa-solid fa-xmark"></i>
             </span>
             
         </div>

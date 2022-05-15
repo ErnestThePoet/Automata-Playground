@@ -1,19 +1,23 @@
 import { APP_STATES } from "observables/app-state";
 import { AUTOMATA_STATE_TYPES } from "observables/automata-state-types";
 
+import { getNodePosition } from "modules/graph-operations";
+import dfaPropertyEditor from "components/dfa/dfa-property-editor";
+
 export function handleGraphClick(e, pageAppState, pageDfaInstance, pagePropertyEditorData) {
-    console.log(e)
     switch (pageAppState.currentState) {
         case APP_STATES.DEFAULT:
             // if click on node or edge, enter EDIT_STATE or EDIT_TRANSITION state
             if (e.nodes.length > 0) {
                 pagePropertyEditorData.setSelectedGraphNodeId(e.nodes[0]);
-                pagePropertyEditorData.setPropertyEditorPosition(e.event.center.y, e.event.center.x);
+                pagePropertyEditorData.setPropertyEditorPosition(
+                    e.event.center.y, e.event.center.x,false);
                 pageAppState.changeAppState(APP_STATES.EDIT_STATE);
             }
             else if (e.edges.length > 0) {
                 pagePropertyEditorData.setSelectedGraphEdgeUuid(e.edges[0]);
-                pagePropertyEditorData.setPropertyEditorPosition(e.event.center.y, e.event.center.x);
+                pagePropertyEditorData.setPropertyEditorPosition(
+                    e.event.center.y, e.event.center.x,false);
                 pageAppState.changeAppState(APP_STATES.EDIT_TRANSITION);
             }
             break;
@@ -33,13 +37,15 @@ export function handleGraphClick(e, pageAppState, pageDfaInstance, pagePropertyE
             
             pagePropertyEditorData.setSelectedGraphNodeId(pageDfaInstance.nextStateId - 1);
             
-            pagePropertyEditorData.setPropertyEditorPosition(e.event.center.y, e.event.center.x);
+            pagePropertyEditorData.setPropertyEditorPosition(
+                e.event.center.y, e.event.center.x,false);
 
             pageAppState.changeAppState(APP_STATES.EDIT_STATE);
 
             break;
         
         case APP_STATES.EDIT_STATE:
+        case APP_STATES.EDIT_TRANSITION:
             pagePropertyEditorData.clearPropertyEditor();
             pageAppState.changeAppState(APP_STATES.DEFAULT);
             break;
@@ -48,13 +54,29 @@ export function handleGraphClick(e, pageAppState, pageDfaInstance, pagePropertyE
             
         case APP_STATES.ADD_TRANSITION_SELECT_DEST:
             
-        case APP_STATES.EDIT_TRANSITION:
-            pagePropertyEditorData.clearPropertyEditor();
-            pageAppState.changeAppState(APP_STATES.DEFAULT);
-            break;
-            
         case APP_STATES.RUN_AUTOMATA:
         default:
+            break;
+    }
+}
+
+export function handleGraphDragEnd(
+    e, pageAppState, pageDfaInstance, pagePropertyEditorData, adjustPropertyEditorPosition) {
+    // update node position storage
+    if (e.nodes.length > 0) {
+        const newCanvasPosition = getNodePosition(e.nodes[0]);
+        pageDfaInstance.editState(
+            e.nodes[0], undefined, undefined, newCanvasPosition.x, newCanvasPosition.y);
+    }
+
+    // change node position in pageDfaInstance and change property editor position
+    switch (pageAppState.currentState) {
+        case APP_STATES.EDIT_STATE:
+        case APP_STATES.EDIT_TRANSITION:
+            if (e.nodes.length > 0 || e.edges.length > 0) {
+                pagePropertyEditorData.setPropertyEditorPosition(e.event.center.y, e.event.center.x, false);
+                adjustPropertyEditorPosition();
+            }
             break;
     }
 }
