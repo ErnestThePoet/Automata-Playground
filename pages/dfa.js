@@ -66,6 +66,35 @@ export default class DfaPage extends react.Component {
         adjustPropertyEditorPosition(this.pageAppState,this.pagePropertyEditorData);
     }
 
+    removeSelected = () => {
+        switch (this.pageAppState.currentState) {
+            case APP_STATES.EDIT_STATE:
+                this.pageDfaInstance.removeState(
+                    this.pagePropertyEditorData.selectedGraphNodeId
+                );
+
+                this.pageAppState.changeAppState(APP_STATES.DEFAULT);
+
+                break;
+            
+            case APP_STATES.EDIT_TRANSITION:
+                this.pageDfaInstance.removeTransition(
+                    this.pagePropertyEditorData.selectedGraphEdgeId
+                );
+
+                this.pageAppState.changeAppState(APP_STATES.DEFAULT);
+
+                break;
+        }
+    };
+
+    runAutomata = () => {
+        if (!this.pageDfaInstance.hasStartState) {
+            this.pageAlertData.showAlertAnimated("DFA没有开始状态");
+            return;
+        }
+    };
+
     pageDfaInstance = new DfaInstance();
     pageAppState = new AppState();
     pagePropertyEditorData = new PropertyEditorData();
@@ -108,6 +137,8 @@ export default class DfaPage extends react.Component {
             
             <AutomataToolbar
                 appState={appState}
+                removeSelected={this.removeSelected}
+                runAutomata={this.runAutomata}
                 className={styles.dfaToolbar} />
             
             <div id="div-canvas-wrapper" className={styles.divCanvasWrapper}></div>

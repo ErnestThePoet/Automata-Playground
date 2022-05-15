@@ -11,6 +11,7 @@
     padding: 8px 8px 5px;
     border-radius: 5px;
     background-color: $toolbar-button-background-color;
+    color: $toolbar-button-text-color;
     cursor: pointer;
 
     user-select: none;
@@ -28,13 +29,28 @@
     }
 }
 
+.spanButtonWrapperActive{
+    color: $toolbar-button-text-active-color;
+}
+
+.spanButtonWrapperDisabled{
+    color: $toolbar-button-text-disabled-color;
+    cursor: default;
+
+    &:hover {
+        background-color: $toolbar-button-background-color;
+    }
+
+    &:active {
+        background-color: $toolbar-button-background-color;
+    }
+}
+
 .iButtonIcon{
     font-size: small;
-    color:$toolbar-button-icon-color;
 }
 
 .spanButtonText{
     font-size: small;
     margin-top: 3px;
-    color: $toolbar-button-text-color;
 }

@@ -1,6 +1,7 @@
 import { APP_STATES } from "observables/app-state";
 
-export function adjustPropertyEditorPosition(pageAppState, pagePropertyEditorData){
+export function adjustPropertyEditorPosition(
+    pageAppState, pagePropertyEditorData, adjustToCenterBeneath = true) {
     if ((pageAppState.currentState === APP_STATES.EDIT_STATE
         || pageAppState.currentState === APP_STATES.EDIT_TRANSITION)
         && !pagePropertyEditorData.isPropertyEditorPositionAdjusted) {
@@ -10,7 +11,11 @@ export function adjustPropertyEditorPosition(pageAppState, pagePropertyEditorDat
         if (canvasWrapper && propertyEditorWrapper) {
             // top and left to make property editor center beneath click point.
             // top and left stored in pagePropertyEditorData is click point.
-            const verticalAdjustmentPx = 30;
+            const verticalAdjustmentPx = adjustToCenterBeneath ? 30 : 0;
+            const horizontalAdjustmentPx =
+                adjustToCenterBeneath
+                    ? - propertyEditorWrapper.clientWidth / 2
+                    : 0;
 
             const boundaryLeft = canvasWrapper.clientLeft;
             const boundaryTop = canvasWrapper.clientTop;
@@ -19,7 +24,7 @@ export function adjustPropertyEditorPosition(pageAppState, pagePropertyEditorDat
 
             let targetTop = pagePropertyEditorData.propertyEditorTop + verticalAdjustmentPx;
             let targetLeft =
-                pagePropertyEditorData.propertyEditorLeft - propertyEditorWrapper.clientWidth / 2;
+                pagePropertyEditorData.propertyEditorLeft + horizontalAdjustmentPx;
             // calculate right side position
             const propertyEditorRight = targetLeft + propertyEditorWrapper.clientWidth;
 
@@ -36,9 +41,11 @@ export function adjustPropertyEditorPosition(pageAppState, pagePropertyEditorDat
             // if bottom exceeds screen bottom, then make property editor above click point
             if (targetTop + propertyEditorWrapper.clientHeight > boundaryBottom) {
                 targetTop =
-                    pagePropertyEditorData.propertyEditorTop
-                    - verticalAdjustmentPx
-                    - propertyEditorWrapper.clientHeight;
+                    adjustToCenterBeneath
+                        ? (pagePropertyEditorData.propertyEditorTop
+                            - verticalAdjustmentPx
+                            - propertyEditorWrapper.clientHeight)
+                        : (boundaryBottom - propertyEditorWrapper.clientHeight);
             }
 
             // if the adjustment made it exceed screen top, then simply align screen top

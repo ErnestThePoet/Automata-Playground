@@ -6,6 +6,8 @@ import styles from "styles/dfa/dfa-property-editor.module.scss";
 import { AUTOMATA_STATE_TYPES } from "observables/automata-state-types";
 import { APP_STATES } from "observables/app-state";
 
+import { adjustPropertyEditorPosition } from "modules/utilities";
+
 // props requires appState, dfaInstance, propertyEditorData
 export default observer(props => {
     const onPropertyInput = e => {
@@ -76,32 +78,81 @@ export default observer(props => {
         props.appState.changeAppState(APP_STATES.DEFAULT);
     };
 
+    const onPropertyEditorDragStart = e => {
+        e.stopPropagation();
+
+        props.propertyEditorData.propertyEditorOrigTop =
+            props.propertyEditorData.propertyEditorTop;
+        props.propertyEditorData.propertyEditorOrigLeft =
+            props.propertyEditorData.propertyEditorLeft;
+        
+        props.propertyEditorData.dragStartX = e.clientX;
+        props.propertyEditorData.dragStartY = e.clientY;
+    }
+
+    const onPropertyEditorDrag = e => {
+        e.stopPropagation();
+
+        const newTop =
+            props.propertyEditorData.propertyEditorOrigTop
+            + e.clientY
+            - props.propertyEditorData.dragStartY;
+        const newLeft =
+            props.propertyEditorData.propertyEditorOrigLeft
+            + e.clientX
+            - props.propertyEditorData.dragStartX;
+
+        // if drag is moving and not drag end
+        if (props.propertyEditorData.propertyEditorTop !== newTop
+            && props.propertyEditorData.propertyEditorLeft !== newLeft
+            && e.clientX !== 0 && e.clientY !== 0) {
+            props.propertyEditorData.setPropertyEditorPosition(newTop, newLeft, false);
+            adjustPropertyEditorPosition(props.appState, props.propertyEditorData,false);
+        }
+    }
+
     return (
         <div id="property-editor-wrapper"
             className={classnames(
             props.className, styles.propertyEditorWrapper, "d-flex align-items-center")}
-            style={props.style}>
+            style={props.style}
+            draggable
+            onDragStart={onPropertyEditorDragStart}
+            onDrag={onPropertyEditorDrag}>
                 
             <label className={styles.lblTransitionCharsTip}
-                style={{ display: props.appState === APP_STATES.EDIT_TRANSITION ? "block" : "none" }}>
-                合并多个消耗字符请连续输入, 如01
+                style={{
+                    display: props.appState.currentState === APP_STATES.EDIT_TRANSITION
+                        ? "block"
+                        : "none"
+                }}>
+                多个消耗字符请连续输入, 如01
             </label>
             
             <input
                 className={styles.inPropertyInput}
-                style={props.propertyEditorData.isInvalidInputWarningShow?{borderColor:"red",color:"red"}:{}}
+                style={props.propertyEditorData.isInvalidInputWarningShow ? { borderColor: "red", color: "red" } : {}}
                 type="text"
                 value={props.propertyEditorData.editorInputTexts[0]}
-                onInput={onPropertyInput} />
+                onInput={onPropertyInput}
+                draggable
+                onDrag={e => {
+                    e.stopPropagation();
+                }} />
             
             <label className={styles.lblInvalidInputInfo}
                 style={{ display: props.propertyEditorData.isInvalidInputWarningShow?"block":"none"}}>
                 {props.propertyEditorData.invalidInputWarningText}
             </label>
             
-            <span className={styles.spanStateTypeGroup} style={{
+            <span className={styles.spanStateTypeGroup}
+                style={{
                 display:props.appState.currentState===APP_STATES.EDIT_STATE?"inline":"none"
-            }}>
+                }}
+                draggable
+                onDrag={e => {
+                    e.stopPropagation();
+                }}>
                 {/* the bind is a must or there will be a 'too maly renders' error.*/}
                 <div className="d-flex align-items-center"
                     onClick={onStateTypeChange.bind(this,AUTOMATA_STATE_TYPES.START)}>
@@ -128,14 +179,22 @@ export default observer(props => {
             <span className={classnames(
                 styles.spanConfirmWrapper,
                 "d-flex justify-content-center align-items-center")}
-                onClick={onConfirmClick}>
+                onClick={onConfirmClick}
+                draggable
+                onDrag={e => {
+                    e.stopPropagation();
+                }}>
                 <i className="fa-solid fa-check"></i>
             </span>
             
             <span className={classnames(
                 styles.spanCancelWrapper,
                 "d-flex justify-content-center align-items-center")}
-                onClick={onCancelClick}>
+                onClick={onCancelClick}
+                draggable
+                onDrag={e => {
+                    e.stopPropagation();
+                }}>
                 <i className="fa-solid fa-xmark"></i>
             </span>
             

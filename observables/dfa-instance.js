@@ -84,7 +84,7 @@ export class DfaInstance{
 
     // requirements: fromId(Number), toId(Number) must be valid
     getEdgeId(fromId, toId) {
-        const targetEdge = this.graphEdges.find(x => x.fromId === fromId && x.toId === toId);
+        const targetEdge = this.graphEdges.find(x => x.from === fromId && x.to === toId);
         return targetEdge ? targetEdge.id : "";
     }
 
@@ -101,6 +101,10 @@ export class DfaInstance{
     }
 
     ///////////////////////////////// Computed /////////////////////////////////
+    // check if there is a start state
+    get hasStartState() {
+        return this.states.find(x => x.type === AUTOMATA_STATE_TYPES.START) !== undefined;
+    }
 
     ///////////////////////////////// Action /////////////////////////////////
     // requirements: name(String) cannot be empty and must be unique; 
@@ -132,7 +136,15 @@ export class DfaInstance{
     // charSeq(String) length>0;
     // this transition does not need to be unique; only new transitions will be added
     addTransition(fromId, toId, charSeq) {
-        const chars = charSeq.split("");
+        const charsOrig = charSeq.split("");
+        const chars = [];
+
+        // remove duplications in charOrig
+        for (const i of charsOrig) {
+            if (!chars.includes(i)) {
+                chars.push(i);
+            }
+        }
 
         const fromTransitions = this.states.find(x => x.id === fromId).transitions;
         const fromTransition = fromTransitions.find(x => x.toId === toId);
@@ -198,7 +210,15 @@ export class DfaInstance{
     // requirements: id(String) has to be valid; 
     // newCharSeq(String) length>0
     editTransition(id, newCharSeq) {
-        const newChars = newCharSeq.split("");
+        const newCharsOrig = newCharSeq.split("");
+        const newChars = [];
+
+        // remove duplications
+        for (const i of newCharsOrig) {
+            if (!newChars.includes(i)) {
+                newChars.push(i);
+            }
+        }
 
         const selectedGraphEdge = this.graphEdges.find(x => x.id === id);
 

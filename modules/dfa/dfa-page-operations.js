@@ -97,7 +97,8 @@ export function handleGraphClick(
                     pagePropertyEditorData.selectedGraphNodeId, e.nodes[0], "0");
                 
                 pagePropertyEditorData.setSelectedGraphEdgeId(
-                    pageDfaInstance.getEdgeId(pagePropertyEditorData.selectedGraphNodeId, e.nodes[0])
+                    pageDfaInstance.getEdgeId(
+                        pagePropertyEditorData.selectedGraphNodeId, e.nodes[0])
                 );
 
                 pagePropertyEditorData.setEditorInputText(

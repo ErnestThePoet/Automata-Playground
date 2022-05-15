@@ -3,13 +3,24 @@ import { AUTOMATA_STATE_TYPES } from "./automata-state-types";
 
 export class PropertyEditorData{
     constructor() {
-        makeAutoObservable(this);
+        makeAutoObservable(this, {
+            propertyEditorOrigTop: false,
+            propertyEditorOrigLeft: false,
+            dragStartX: false,
+            dragStartY:false
+        });
     }
 
     isPropertyEditorPositionAdjusted = false;
     // property editor position
     propertyEditorTop = 0;
     propertyEditorLeft = 0;
+
+    // used for drag move control
+    propertyEditorOrigTop = 0;
+    propertyEditorOrigLeft = 0;
+    dragStartX = 0;
+    dragStartY = 0;
 
     // updated on click or when adding states or transitions
     selectedGraphNodeId = 0;
