@@ -1,0 +1,99 @@
+@import "theme";
+@import "layout-config";
+
+.divRunPanelWrapper{
+    width: fit-content;
+    z-index: $z-index-toolbar;
+}
+
+.divRunControlsWrapper{
+    font-size: 15px;
+
+    user-select: none;
+}
+
+.iRunControl{
+    padding: 5px;
+    border-radius: 5px;
+    background-color: $toolbar-button-background-color;
+    color: $toolbar-button-text-color;
+    cursor: pointer;
+
+    user-select: none;
+
+    box-shadow: 1px 1px 5px -2px rgba(0, 0, 0, 0.50);
+
+    transition-duration: 100ms;
+
+    &:hover {
+        background-color: $toolbar-button-hover-background-color;
+    }
+
+    &:active {
+        background-color: $toolbar-button-active-background-color;
+    }
+}
+
+.iRunControlClose{
+    @extend .iRunControl;
+
+    &:hover {
+        background-color: rgb(255, 0, 89);
+    }
+
+    &:active {
+        background-color: rgb(255, 0, 55);
+    }
+}
+
+.divLowerPartWrapper{
+    margin: 5px 0;
+}
+
+.spanLowerLeftPartWrapper{
+    width: 120px;
+    font-size: 14px;
+    font-family: 'Libre Baskerville', serif;
+}
+
+.divStringWrapper{
+    width: 100%;
+}
+
+.spanStringChar{
+    color: $run-panel-string-char-color;
+}
+
+.spanStringCharConsumed {
+    color: $run-panel-string-char-consumed-color;
+}
+
+.divStringInputWrapper{
+    width: 100%;
+}
+
+.inString{
+    width: 100%;
+    
+    padding: 2px 5px;
+
+    border: 1px solid $property-editor-input-background-color;
+    border-radius: 0.25rem;
+    outline: 0;
+}
+
+.spanLowerRightPartWrapper{
+    padding: 0 5px;
+    user-select: none;
+}
+
+.spanCurrentStateLabel{
+    font-size: 14px;
+}
+
+.spanCurrentState{
+    font-size: 15px;
+    padding: 10px;
+    border-radius: 50%;
+    border: 2px solid black;
+}

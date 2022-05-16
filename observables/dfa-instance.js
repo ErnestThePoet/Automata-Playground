@@ -64,6 +64,11 @@ export class DfaInstance{
     */
     graphEdges = [];
 
+    ///// Run automata data
+    runString = "";
+    nextRunStringIndex = 0;
+    runStateSequence = []; // Array<State>
+    isRunningStuck = false;
     ///////////////////////////////// ComputedFn /////////////////////////////////
     // requirements: name(String)
     isStateNameUnique(name) {
@@ -106,7 +111,52 @@ export class DfaInstance{
         return this.states.find(x => x.type === AUTOMATA_STATE_TYPES.START) !== undefined;
     }
 
+    get currentRunState() {
+        return this.runStateSequence[this.runStateSequence.length - 1];
+    }
+
     ///////////////////////////////// Action /////////////////////////////////
+    ///// Run automata functions
+    // requirements: runString(String) cannot be empty
+    setRunString(runString) {
+        this.runString = runString;
+    }
+    
+    // should be called when entering RUN_AUTOMATA state
+    // must be called before runSingleStep or runToEnd
+    initRun() {
+        // set state sequence to include only start state
+        this.nextRunStringIndex = 0;
+        this.runStateSequence = [this.states.find(x => x.type === AUTOMATA_STATE_TYPES.START)];
+        this.isRunningStuck = false;
+    }
+
+    runSingleStep() {
+        if (this.nextRunStringIndex > this.runString.length - 1) {
+            return;
+        }
+
+        if (this.isRunningStuck) {
+            return;
+        }
+
+        for (const i of this.currentRunState.transitions) {
+            if (i.chars.includes(this.runString[this.nextRunStringIndex])) {
+                this.runStateSequence.push(i.to);
+                this.nextRunStringIndex++;
+            }
+            else {
+                this.isRunningStuck = true;
+            }
+        }
+    }
+
+    runToEnd() {
+        for (let i = this.nextRunStringIndex; i < this.runString.length; i++){
+            this.runSingleStep();
+        }
+    }
+
     // requirements: name(String) cannot be empty and must be unique; 
     // stateType(Number) has to be one of STATE_TYPES in automata-state-types.js;
     // x(Number); y(Number) are canvas coords

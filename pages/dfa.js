@@ -11,6 +11,7 @@ import { adjustPropertyEditorPosition } from "modules/utilities";
 
 import DfaPropertyEditor from "components/dfa/dfa-property-editor";
 import AutomataToolbar from "components/automata-toolbar";
+import RunPanel from "components/run-panel";
 
 import { handleGraphClick,handleGraphDragEnd } from "modules/dfa/dfa-page-operations";
 import { initGraph, updateGraph } from "modules/graph-operations";
@@ -93,6 +94,8 @@ export default class DfaPage extends react.Component {
             this.pageAlertData.showAlertAnimated("DFA没有开始状态");
             return;
         }
+
+        this.pageAppState.changeAppState(APP_STATES.RUN_AUTOMATA);
     };
 
     pageDfaInstance = new DfaInstance();
@@ -139,7 +142,19 @@ export default class DfaPage extends react.Component {
                 appState={appState}
                 removeSelected={this.removeSelected}
                 runAutomata={this.runAutomata}
-                className={styles.dfaToolbar} />
+                className={styles.bottomToolbar}
+                style={{
+                    display: appState.currentState === APP_STATES.RUN_AUTOMATA ? "none" : "block"
+                }} />
+            
+            <RunPanel
+                appState={appState}
+                dfaInstance={dfaInstance}
+                hasIterationLimit={false}
+                className={styles.bottomToolbar}
+                style={{
+                    display: appState.currentState === APP_STATES.RUN_AUTOMATA ? "block" : "none"
+                }}/>
             
             <div id="div-canvas-wrapper" className={styles.divCanvasWrapper}></div>
         </div>
