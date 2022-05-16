@@ -11,6 +11,10 @@ export class AlertData{
     alertMessage = "";
 
     showAlertAnimated(message, timeS = 2) {
+        if (this.isAlertShow) {
+            return;
+        }
+        
         this.alertOpacity = 0;
         this.alertMessage = message;
         this.isAlertShow = true;

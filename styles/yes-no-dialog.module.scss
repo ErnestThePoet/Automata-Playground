@@ -4,9 +4,59 @@
 .divDialogWall{
     position: absolute;
     left: 0;
-    top: 70px;
+    top: $navbar-height;
     /* Actually the height exceeds page bottom. */
     @include full-parent-size;
     background-color: rgba(0, 0, 0, 0.15);
     z-index: $z-index-dialog-wall;
+}
+
+.divDialogWrapper {
+    @include fixed-center-screen;
+
+    width: $dialog-width;
+    height: fit-content;
+    background-color: white;
+    border: 4px solid rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+}
+
+.divDialogTitleBar {
+    height: 32px;
+    padding: 0 8px;
+    background-color: rgb(243, 243, 243);
+
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.lblDialogTitle {
+    font-size: 15px;
+    color: rgb(102, 102, 102);
+}
+
+.divDialogContentWrapper {
+    padding: 15px 15px 5px;
+}
+
+.divDialogMessage{
+    font-size: 13px;
+}
+
+.divYesNoWrapper{
+    margin-top: 10px;
+    padding: 5px;
+}
+
+.btnYesNo{
+    font-size: 13px !important;
+    margin-left: 5px;
+
+    &:focus{
+        box-shadow: none;
+    }
+
+    &:active{
+        box-shadow: none;
+    }
 }

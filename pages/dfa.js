@@ -7,7 +7,11 @@ import { AppState,APP_STATES } from "observables/app-state";
 import { DfaInstance } from "observables/dfa-instance";
 import { PropertyEditorData } from "observables/property-editor-data";
 import { AlertData } from "observables/alert-data";
-import { adjustPropertyEditorPosition } from "modules/utilities";
+import {
+    adjustPropertyEditorPosition,
+    loadDfaJsonString,
+    generateDfaJsonString
+} from "modules/utilities";
 
 import DfaPropertyEditor from "components/dfa/dfa-property-editor";
 import AutomataToolbar from "components/automata-toolbar";
@@ -24,12 +28,22 @@ export default class DfaPage extends react.Component {
         super(props);
     }
 
-    loadAutomataAtfString = dfaAtfString => {
-        console.log("DFA IMPORT")
+    loadAutomataJsonString = (dfaJsonString, isQueryIsEmpty=false) => {
+        if (isQueryIsEmpty) {
+            return this.pageDfaInstance.isAutomataEmpty;
+        }
+
+        loadDfaJsonString(dfaJsonString, this.pageDfaInstance, this.pageAlertData);
     };
 
-    exportAutomataAtfString = () => {
-        console.log("DFA EXPORT")
+    exportAutomataJsonString = () => {
+        if (this.pageDfaInstance.isAutomataEmpty) {
+            this.pageAlertData.showAlertAnimated("DFA为空");
+            return null;
+        }
+        else {
+            return generateDfaJsonString(this.pageDfaInstance);
+        }
     };
 
     clearAll = () => {
@@ -95,9 +109,7 @@ export default class DfaPage extends react.Component {
 
     runAutomata = () => {
         if (!this.pageDfaInstance.hasStartState) {
-            if (!this.pageAlertData.isAlertShow) {
-                this.pageAlertData.showAlertAnimated("DFA没有开始状态");
-            }
+            this.pageAlertData.showAlertAnimated("DFA没有开始状态");
             
             return;
         }
@@ -112,7 +124,7 @@ export default class DfaPage extends react.Component {
     pageAlertData = new AlertData();
 
     pageComponent = observer(({ dfaInstance,appState,propertyEditorData,alertData }) => (
-        <div className={styles.divContentWrapper}>
+        <main className={styles.mainContentWrapper}>
             <Head>
                 <title>Automata Playground - DFA</title>
             </Head>
@@ -165,7 +177,7 @@ export default class DfaPage extends react.Component {
                 }}/>
             
             <div id="div-canvas-wrapper" className={styles.divCanvasWrapper}></div>
-        </div>
+        </main>
     ));
 
     render = () => (

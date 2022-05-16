@@ -5,6 +5,7 @@
 .divMainWrapper{
     position: absolute;
     @include full-parent-size;
+    overflow: hidden;
 }
 
 .navNav{
@@ -102,6 +103,10 @@
 
 .asideFunctionNavShow{
     transform: translateX(0);
+}
+
+.inImportAutomata{
+    display: none;
 }
 
 .divAlert{

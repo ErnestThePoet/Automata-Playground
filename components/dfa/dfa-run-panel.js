@@ -14,22 +14,28 @@ export default observer(props => {
         e.stopPropagation();
 
         props.dfaInstance.runSingleStep();
-    };
-
-    const onRunToEndClick = e => {
-        e.stopPropagation();
-
-        props.dfaInstance.runToEnd();
-    };
-
-    const onRunSingleBackClick = e => {
-        e.stopPropagation();
 
         if (props.dfaInstance.isRunningStuck) {
             if (!props.alertData.isAlertShow) {
                 props.alertData.showAlertAnimated("DFA处于卡死状态");
             }
         }
+    };
+
+    const onRunToEndClick = e => {
+        e.stopPropagation();
+
+        props.dfaInstance.runToEnd();
+
+        if (props.dfaInstance.isRunningStuck) {
+            if (!props.alertData.isAlertShow) {
+                props.alertData.showAlertAnimated("DFA处于卡死状态");
+            }
+        }
+    };
+
+    const onRunSingleBackClick = e => {
+        e.stopPropagation();
 
         props.dfaInstance.runSingleBack();
     };
@@ -43,7 +49,7 @@ export default observer(props => {
     const onCloseClick = e => {
         e.stopPropagation();
 
-        props.dfaInstance.exitRun();
+        props.dfaInstance.runExit();
 
         props.appState.changeAppState(APP_STATES.DEFAULT);
     };

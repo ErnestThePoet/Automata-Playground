@@ -60,7 +60,7 @@
 .spanLowerLeftPartWrapper{
     width: 60vw;
     font-size: 14px;
-    font-family: 'Libre Baskerville', serif;
+    font-family: $automata-font-family;
 }
 
 .divStringWrapper{
@@ -106,6 +106,7 @@
     text-align: center;
     box-sizing: content-box;
     font-size: 14px;
+    font-family: $automata-font-family;
     border-radius: 50%;
     background-color: red;
     border: 2px solid black;

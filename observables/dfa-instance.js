@@ -15,7 +15,8 @@ export class DfaInstance{
             getStateTypeById: false,
             getEdgeId: false,
             getTransitionCharSeqById:false,
-            isStateNameUnique: false
+            isStateNameUnique: false,
+            isTransitionCharSeqUnique:false
         });
     }
 
@@ -35,7 +36,6 @@ export class DfaInstance{
             name:String, 
             type:Number, 
             transitions:Array<{
-                to:State, 
                 toId:Number, 
                 chars:Array<String>
             }>
@@ -78,6 +78,28 @@ export class DfaInstance{
         return this.states.find(x => x.name === name) === undefined;
     }
 
+    // requirements: id(String) must be valid; charSeq(String) length>0
+    // return [isUnique, firstDuplicatedChar]
+    isTransitionCharSeqUnique(id, charSeq) {
+        const targetEdge = this.graphEdges.find(x => x.id === id);
+        const fromState = this.states.find(x => x.id === targetEdge.from);
+
+        for (const i of fromState.transitions) {
+            // do not compare to self
+            if (i.toId === targetEdge.to) {
+                continue;
+            }
+
+            for (const j of charSeq) {
+                if (i.chars.includes(j)) {
+                    return [false, j];
+                }
+            }
+        }
+
+        return [true, ""];
+    }
+
     // requirements: id(Number) must be valid
     getStateNameById(id) {
         const targetState = this.states.find(x => x.id === id);
@@ -117,6 +139,10 @@ export class DfaInstance{
     get currentRunState() {
         return this.runStateSequence[this.runStateSequence.length - 1]??{name:""};
     }
+    
+    get isAutomataEmpty() {
+        return this.states.length === 0;
+    }
 
     ///////////////////////////////// Action /////////////////////////////////
     ///// Run automata functions
@@ -140,7 +166,7 @@ export class DfaInstance{
         this.isRunningStuck = false;
     }
 
-    exitRun() {
+    runExit() {
         this.setGraphNodeGroup(this.currentRunState, false);
     }
 
@@ -158,7 +184,7 @@ export class DfaInstance{
         for (const i of this.currentRunState.transitions) {
             if (i.chars.includes(this.runString[this.nextRunStringCharIndex])) {
                 this.setGraphNodeGroup(this.currentRunState, false);
-                this.runStateSequence.push(i.to);
+                this.runStateSequence.push(this.states.find(x => x.id === i.toId));
                 this.setGraphNodeGroup(this.currentRunState, true);
                 this.nextRunStringCharIndex++;
 
@@ -194,6 +220,15 @@ export class DfaInstance{
         this.runStateSequence = [this.states.find(x => x.type === AUTOMATA_STATE_TYPES.START)];
         this.setGraphNodeGroup(this.currentRunState, true);
         this.isRunningStuck = false;
+    }
+
+    ///// Load DFA from file read
+    loadDfaData(nextStateId, nextEdgeId, states, graphNodes, graphEdges) {
+        this.nextStateId = nextStateId;
+        this.nextEdgeId = nextEdgeId;
+        this.states = states;
+        this.graphNodes = graphNodes;
+        this.graphEdges = graphEdges;
     }
 
     ///// State&transition management functions
@@ -232,7 +267,10 @@ export class DfaInstance{
     // requirements:
     // fromId(Number) and toId(Number) have to be valid;
     // charSeq(String) length>0;
-    // this transition does not need to be unique; only new transitions will be added
+    // each char in charSeq must be unique in all transitions starting from fromId.
+    // inside charSeq, chars does not need to be unique; 
+    // only new transitions will be added.
+    // if a transition from From to To already exists, charSeq can also contain duplications.
     addTransition(fromId, toId, charSeq) {
         const charsOrig = charSeq.split("");
         const chars = [];
@@ -259,8 +297,7 @@ export class DfaInstance{
         }
         // otherwise add a new transition
         else {
-            const toState = this.states.find(x => x.id === toId);
-            fromTransitions.push({ to: toState, toId, chars });
+            fromTransitions.push({ toId, chars });
 
             const newEdge = {
                 id: this.nextEdgeId.toString(),
@@ -316,7 +353,8 @@ export class DfaInstance{
     // we did not supply an id when adding edges,
     // so we will get the id that vis.js internally provided in click event.
     // requirements: id(String) has to be valid; 
-    // newCharSeq(String) length>0
+    // newCharSeq(String) length>0;
+    // each char in charSeq must be unique in all transitions starting from the start state.
     editTransition(id, newCharSeq) {
         const newCharsOrig = newCharSeq.split("");
         const newChars = [];

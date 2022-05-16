@@ -31,11 +31,22 @@ export function handleGraphClick(
             else if (e.edges.length > 0) {
                 pagePropertyEditorData.setSelectedGraphEdgeId(e.edges[0]);
 
+                const transitionCharSeq = pageDfaInstance.getTransitionCharSeqById(
+                    pagePropertyEditorData.selectedGraphEdgeId);
+
                 pagePropertyEditorData.setEditorInputText(
-                    pageDfaInstance.getTransitionCharSeqById(
-                        pagePropertyEditorData.selectedGraphEdgeId),
+                    transitionCharSeq,
                     0
                 );
+
+                const isCharSeqUnique = pageDfaInstance.isTransitionCharSeqUnique(
+                    pagePropertyEditorData.selectedGraphEdgeId, transitionCharSeq
+                );
+
+                if (!isCharSeqUnique[0]) {
+                    pagePropertyEditorData.showInvalidInputWarning(
+                        `已经有字符${isCharSeqUnique[1]}的转移`);
+                }
 
                 pagePropertyEditorData.setPropertyEditorPosition(
                     e.event.center.y, e.event.center.x, false);
@@ -101,11 +112,23 @@ export function handleGraphClick(
                         pagePropertyEditorData.selectedGraphNodeId, e.nodes[0])
                 );
 
+                const transitionCharSeq = pageDfaInstance.getTransitionCharSeqById(
+                    pagePropertyEditorData.selectedGraphEdgeId);
+
+                // do not set "0" directly because we may be merging transitions.
                 pagePropertyEditorData.setEditorInputText(
-                    pageDfaInstance.getTransitionCharSeqById(
-                        pagePropertyEditorData.selectedGraphEdgeId),
+                    transitionCharSeq,
                     0
                 );
+
+                const isCharSeqUnique = pageDfaInstance.isTransitionCharSeqUnique(
+                    pagePropertyEditorData.selectedGraphEdgeId, transitionCharSeq
+                );
+
+                if (!isCharSeqUnique[0]) {
+                    pagePropertyEditorData.showInvalidInputWarning(
+                        `已经有字符${isCharSeqUnique[1]}的转移`);
+                }
 
                 pagePropertyEditorData.setPropertyEditorPosition(
                     e.event.center.y, e.event.center.x, false);

@@ -34,6 +34,16 @@ export default observer(props => {
                     return;
                 }
 
+                const isCharSeqUnique = props.dfaInstance.isTransitionCharSeqUnique(
+                    props.propertyEditorData.selectedGraphEdgeId, e.target.value
+                );
+
+                if (!isCharSeqUnique[0]) {
+                    props.propertyEditorData.showInvalidInputWarning(
+                        `已经有字符${isCharSeqUnique[1]}的转移`);
+                    return;
+                }
+
                 props.propertyEditorData.hideInvalidInputWarning();
 
                 break;

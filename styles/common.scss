@@ -9,3 +9,10 @@
     width:100vw;
     height: calc(100vh - #{$navbar-height});
 }
+
+@mixin fixed-center-screen{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+}

@@ -33,7 +33,7 @@
 .inPropertyInput{
     width: 150px;
     font-size: 14px;
-    font-family: 'Libre Baskerville', serif;
+    font-family: $automata-font-family;
     padding: 2px 5px;
     
     border: 1px solid $property-editor-input-background-color;
