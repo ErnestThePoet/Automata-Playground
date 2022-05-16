@@ -1,0 +1,12 @@
+@import "common";
+@import "layout-config";
+
+.divDialogWall{
+    position: absolute;
+    left: 0;
+    top: 70px;
+    /* Actually the height exceeds page bottom. */
+    @include full-parent-size;
+    background-color: rgba(0, 0, 0, 0.15);
+    z-index: $z-index-dialog-wall;
+}

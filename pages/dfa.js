@@ -24,12 +24,16 @@ export default class DfaPage extends react.Component {
         super(props);
     }
 
-    loadAutomataAtfString(dfaAtfString) {
+    loadAutomataAtfString = dfaAtfString => {
         console.log("DFA IMPORT")
-    }
+    };
 
-    exportAutomataAtfString() {
+    exportAutomataAtfString = () => {
         console.log("DFA EXPORT")
+    };
+
+    clearAll = () => {
+        this.pageDfaInstance.clearAll();
     }
 
     componentDidMount = () => {
@@ -91,7 +95,10 @@ export default class DfaPage extends react.Component {
 
     runAutomata = () => {
         if (!this.pageDfaInstance.hasStartState) {
-            this.pageAlertData.showAlertAnimated("DFA没有开始状态");
+            if (!this.pageAlertData.isAlertShow) {
+                this.pageAlertData.showAlertAnimated("DFA没有开始状态");
+            }
+            
             return;
         }
 
@@ -109,7 +116,7 @@ export default class DfaPage extends react.Component {
             <Head>
                 <title>Automata Playground - DFA</title>
             </Head>
-
+            
             <div className={appStyles.divAlert} role="alert" style={{
                 display: alertData.isAlertShow ? "block" : "none",
                 opacity:alertData.alertOpacity
@@ -151,6 +158,7 @@ export default class DfaPage extends react.Component {
             <DfaRunPanel
                 appState={appState}
                 dfaInstance={dfaInstance}
+                alertData={alertData}
                 className={styles.bottomToolbar}
                 style={{
                     display: appState.currentState === APP_STATES.RUN_AUTOMATA ? "block" : "none"

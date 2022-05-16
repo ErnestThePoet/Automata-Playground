@@ -16,7 +16,11 @@ class MyApp extends react.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isAsideShow: false
+            isAsideShow: false,
+
+            isYesNoDialogShow: false,
+            yesNoDialogTitle:"",
+            yesNoDialogMessage:""
         };
     }
 
@@ -29,6 +33,10 @@ class MyApp extends react.Component {
 
     exportAutomataAtfString = () => {
         this.automataPageRef.current.exportAutomataAtfString();
+    }
+
+    clearAll = () => {
+        this.automataPageRef.current.clearAll();
     }
 
     render = () => {
@@ -78,7 +86,8 @@ class MyApp extends react.Component {
                             <i className="fa-solid fa-file-arrow-down"></i>
                             保存
                         </li>
-                        <li className={styles.liFunctionNavItem}>
+                        <li className={styles.liFunctionNavItem}
+                            onClick={this.clearAll}>
                             <i className="fa-solid fa-xmark"></i>
                             清空
                         </li>

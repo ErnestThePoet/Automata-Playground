@@ -107,19 +107,32 @@ export default observer(props => {
             && props.propertyEditorData.propertyEditorLeft !== newLeft
             && e.clientX !== 0 && e.clientY !== 0) {
             props.propertyEditorData.setPropertyEditorPosition(newTop, newLeft, false);
-            adjustPropertyEditorPosition(props.appState, props.propertyEditorData,false);
+            adjustPropertyEditorPosition(props.appState, props.propertyEditorData, false);
         }
-    }
+    };
+
+    const isMobileBrowser = () => {
+        const uaLowerCase = navigator.userAgent.toLowerCase();
+        return uaLowerCase.includes("android")
+            || uaLowerCase.includes("harmony")
+            || uaLowerCase.includes("iphone")
+            || uaLowerCase.includes("mobile");
+    };
 
     return (
         <div id="property-editor-wrapper"
             className={classnames(
             props.className, styles.propertyEditorWrapper, "d-flex align-items-center")}
-            style={props.style}
-            draggable
-            onDragStart={onPropertyEditorDragStart}
-            onDrag={onPropertyEditorDrag}>
-                
+            style={props.style}>
+            
+            {
+                !isMobileBrowser() &&
+                <i className={classnames(styles.iDragArea, "fa-solid fa-ellipsis-vertical")}
+                    draggable
+                    onDragStart={onPropertyEditorDragStart}
+                    onDrag={onPropertyEditorDrag}></i>
+            }
+            
             <label className={styles.lblTransitionCharsTip}
                 style={{
                     display: props.appState.currentState === APP_STATES.EDIT_TRANSITION
@@ -134,11 +147,7 @@ export default observer(props => {
                 style={props.propertyEditorData.isInvalidInputWarningShow ? { borderColor: "red", color: "red" } : {}}
                 type="text"
                 value={props.propertyEditorData.editorInputTexts[0]}
-                onInput={onPropertyInput}
-                draggable
-                onDrag={e => {
-                    e.stopPropagation();
-                }} />
+                onInput={onPropertyInput} />
             
             <label className={styles.lblInvalidInputInfo}
                 style={{ display: props.propertyEditorData.isInvalidInputWarningShow?"block":"none"}}>
@@ -148,10 +157,6 @@ export default observer(props => {
             <span className={styles.spanStateTypeGroup}
                 style={{
                 display:props.appState.currentState===APP_STATES.EDIT_STATE?"inline":"none"
-                }}
-                draggable
-                onDrag={e => {
-                    e.stopPropagation();
                 }}>
                 {/* the bind is a must or there will be a 'too maly renders' error.*/}
                 <div className="d-flex align-items-center"
@@ -179,22 +184,14 @@ export default observer(props => {
             <span className={classnames(
                 styles.spanConfirmWrapper,
                 "d-flex justify-content-center align-items-center")}
-                onClick={onConfirmClick}
-                draggable
-                onDrag={e => {
-                    e.stopPropagation();
-                }}>
+                onClick={onConfirmClick}>
                 <i className="fa-solid fa-check"></i>
             </span>
             
             <span className={classnames(
                 styles.spanCancelWrapper,
                 "d-flex justify-content-center align-items-center")}
-                onClick={onCancelClick}
-                draggable
-                onDrag={e => {
-                    e.stopPropagation();
-                }}>
+                onClick={onCancelClick}>
                 <i className="fa-solid fa-xmark"></i>
             </span>
             

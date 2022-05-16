@@ -33,6 +33,10 @@
     color: $toolbar-button-text-active-color;
 }
 
+.spanButtonWrapperActiveSecond {
+    color: $toolbar-button-text-active-second-color;
+}
+
 .spanButtonWrapperDisabled{
     color: $toolbar-button-text-disabled-color;
     cursor: default;

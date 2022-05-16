@@ -6,12 +6,12 @@ export const AUTOMATA_STATE_TYPES = {
 
 // used to color graph nodes differently
 export const GRAPH_NODE_GROUPS = {
-    START: 0,
-    NORMAL: 1,
-    FINAL: 2,
-    START_CURRENT: 3,
-    NORMAL_CURRENT: 4,
-    FINAL_CURRENT:5
+    START: "0",
+    NORMAL: "1",
+    FINAL: "2",
+    START_CURRENT: "3",
+    NORMAL_CURRENT: "4",
+    FINAL_CURRENT:"5"
 };
 
 export function toGraphNodeGroup(stateType, isCurrent=false) {

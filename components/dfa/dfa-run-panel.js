@@ -3,10 +3,12 @@ import { observer } from "mobx-react-lite";
 import { APP_STATES } from "observables/app-state";
 import { AUTOMATA_STATE_TYPES } from "observables/automata-state-types";
 
-import styles from "styles/run-panel.module.scss";
+import { START_NODE_BKG_COLOR,NORMAL_NODE_BKG_COLOR,FINAL_NODE_BKG_COLOR } from "styles/graph-theme";
+
+import styles from "styles/dfa/dfa-run-panel.module.scss";
 import classnames from "classnames";
 
-// props requires appState, dfaInstance
+// props requires appState, dfaInstance, alertData
 export default observer(props => {
     const onRunSingleStepClick = e => {
         e.stopPropagation();
@@ -17,25 +19,37 @@ export default observer(props => {
     const onRunToEndClick = e => {
         e.stopPropagation();
 
-        props.dfaInstance.runSingleStep();
+        props.dfaInstance.runToEnd();
     };
 
     const onRunSingleBackClick = e => {
         e.stopPropagation();
 
-        props.dfaInstance.runSingleStep();
+        if (props.dfaInstance.isRunningStuck) {
+            if (!props.alertData.isAlertShow) {
+                props.alertData.showAlertAnimated("DFA处于卡死状态");
+            }
+        }
+
+        props.dfaInstance.runSingleBack();
     };
 
     const onRunResetClick = e => {
         e.stopPropagation();
 
-        props.dfaInstance.runSingleStep();
+        props.dfaInstance.runReset();
     };
     
     const onCloseClick = e => {
         e.stopPropagation();
 
+        props.dfaInstance.exitRun();
+
         props.appState.changeAppState(APP_STATES.DEFAULT);
+    };
+
+    const onRunStringInput = e => {
+        props.dfaInstance.setRunString(e.target.value);
     };
 
     return (
@@ -56,11 +70,16 @@ export default observer(props => {
             <div className={classnames(styles.divLowerPartWrapper,"d-flex")}>
                 <span className={styles.spanLowerLeftPartWrapper}>
                     <div className={classnames(styles.divStringWrapper, "d-flex flex-wrap")}>
-                        
+                        {props.dfaInstance.runString.split("").map((x,i) => (
+                            <span key={i} className={i < props.dfaInstance.nextRunStringCharIndex
+                                ? styles.spanStringCharConsumed : styles.spanStringChar}>{x}</span>
+                        ))}
                     </div>
 
                     <div className={styles.divStringInputWrapper}>
-                        <input className={styles.inString} />
+                        <input className={styles.inString}
+                            value={props.dfaInstance.runString}
+                            onInput={onRunStringInput}/>
                     </div>
                 </span>
 
@@ -78,7 +97,12 @@ export default observer(props => {
                                     : "solid"),
                             borderWidth: props.dfaInstance.currentRunState.type === AUTOMATA_STATE_TYPES.FINAL
                                     ? 5
-                                    : 2
+                                : 2,
+                            backgroundColor: props.dfaInstance.currentRunState.type === AUTOMATA_STATE_TYPES.START
+                                ? START_NODE_BKG_COLOR
+                                : (props.dfaInstance.currentRunState.type === AUTOMATA_STATE_TYPES.FINAL
+                                    ? FINAL_NODE_BKG_COLOR
+                                    : NORMAL_NODE_BKG_COLOR)
                     }}>
                         {props.dfaInstance.currentRunState.name}
                     </span>

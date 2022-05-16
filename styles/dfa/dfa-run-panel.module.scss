@@ -1,5 +1,5 @@
-@import "theme";
-@import "layout-config";
+@import "../theme";
+@import "../layout-config";
 
 .divRunPanelWrapper{
     width: fit-content;
@@ -107,5 +107,6 @@
     box-sizing: content-box;
     font-size: 14px;
     border-radius: 50%;
+    background-color: red;
     border: 2px solid black;
 }

@@ -17,10 +17,11 @@ export function adjustPropertyEditorPosition(
                     ? - propertyEditorWrapper.clientWidth / 2
                     : 0;
 
-            const boundaryLeft = canvasWrapper.clientLeft;
-            const boundaryTop = canvasWrapper.clientTop;
-            const boundaryRight = canvasWrapper.clientLeft + canvasWrapper.clientWidth;
-            const boundaryBottom = canvasWrapper.clientTop + canvasWrapper.clientHeight;
+            const boundaryLeft = canvasWrapper.offsetLeft+canvasWrapper.clientLeft;
+            const boundaryTop = canvasWrapper.offsetTop+canvasWrapper.clientTop;
+            
+            const boundaryRight = boundaryLeft + canvasWrapper.clientWidth;
+            const boundaryBottom = boundaryTop + canvasWrapper.clientHeight;
 
             let targetTop = pagePropertyEditorData.propertyEditorTop + verticalAdjustmentPx;
             let targetLeft =

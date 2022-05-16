@@ -1,10 +1,15 @@
-import {Network} from "vis-network";
+import { Network } from "vis-network";
+import { GROUP_COLOR_OPTIONS } from "styles/graph-theme";
 
 let network = undefined;
 
 export function initGraph(containerElement, onClick,dragEnd) {
     const options = {
         nodes: {
+            font: {
+                color:"#000000",
+                face:"Libre Baskerville"
+            },
             shape: "circle",
             margin: 15,
             shapeProperties: {
@@ -17,6 +22,7 @@ export function initGraph(containerElement, onClick,dragEnd) {
                 y: 3
             }
         },
+        groups:GROUP_COLOR_OPTIONS,
         edges: {
             arrows: "to",
             color: {
@@ -26,7 +32,8 @@ export function initGraph(containerElement, onClick,dragEnd) {
                 inherit: false
             },
             font: {
-                align: "top"
+                align: "top",
+                face: "Libre Baskerville"
             },
             width: 2
         },
@@ -50,36 +57,6 @@ export function updateGraph(nodes, edges) {
     const previousViewPosition = network.getViewPosition();
 
     network.setData({ nodes, edges });
-
-    let newColorOptions = {
-        groups: {
-            "0": {
-                color: "#83E083"
-            },
-            "1": {
-                color: {
-                    border: "#c53baf",
-                    background: "#C991C0",
-                    hover: {
-                        border: "#c53baf",
-                        background: "#ca7fbe"
-                    },
-                    highlight: {
-                        border: "#ad1695",
-                        background: "#ca7fbe"
-                    }
-                },
-                font: {
-                    color: "#ffffff"
-                }
-            },
-            "2": {
-                color: "#FF8E8E"
-            }
-        }
-    };
-    
-    network.setOptions(newColorOptions);
 
     // restore previous view properties
     network.moveTo({

@@ -1,5 +1,8 @@
 import { makeAutoObservable } from "mobx";
-import { AUTOMATA_STATE_TYPES,toGraphNodeGroup } from "observables/automata-state-types";
+import {
+    AUTOMATA_STATE_TYPES,
+    toGraphNodeGroup
+} from "observables/automata-state-types";
 
 function getLabelFromTransitionChars(chars) {
     return chars.join(",");
@@ -46,7 +49,7 @@ export class DfaInstance{
         GraphNode:{
             id:Number (guaranteed equal to State.id for same state),
             label:String (guaranteed equal to State.name for same state), 
-            group:Number,
+            group:String,
             x:Number,
             y:Number
         }
@@ -66,7 +69,7 @@ export class DfaInstance{
 
     ///// Run automata data
     runString = "";
-    nextRunStringIndex = 0;
+    nextRunStringCharIndex = 0;
     runStateSequence = []; // Array<State>
     isRunningStuck = false;
     ///////////////////////////////// ComputedFn /////////////////////////////////
@@ -117,6 +120,10 @@ export class DfaInstance{
 
     ///////////////////////////////// Action /////////////////////////////////
     ///// Run automata functions
+    setGraphNodeGroup(state,isCurrent) {
+        const targetGraphNode = this.graphNodes.find(x => x.id === state.id);
+        targetGraphNode.group = toGraphNodeGroup(state.type, isCurrent);
+    }
     // requirements: runString(String) cannot be empty
     setRunString(runString) {
         this.runString = runString;
@@ -127,13 +134,18 @@ export class DfaInstance{
     initRun() {
         this.setRunString("001");
         // set state sequence to include only start state
-        this.nextRunStringIndex = 0;
+        this.nextRunStringCharIndex = 0;
         this.runStateSequence = [this.states.find(x => x.type === AUTOMATA_STATE_TYPES.START)];
+        this.setGraphNodeGroup(this.currentRunState, true);
         this.isRunningStuck = false;
     }
 
+    exitRun() {
+        this.setGraphNodeGroup(this.currentRunState, false);
+    }
+
     runSingleStep() {
-        if (this.nextRunStringIndex > this.runString.length - 1) {
+        if (this.nextRunStringCharIndex > this.runString.length - 1) {
             return;
         }
 
@@ -141,23 +153,58 @@ export class DfaInstance{
             return;
         }
 
+        let isRunningStuck = true;
+
         for (const i of this.currentRunState.transitions) {
-            if (i.chars.includes(this.runString[this.nextRunStringIndex])) {
+            if (i.chars.includes(this.runString[this.nextRunStringCharIndex])) {
+                this.setGraphNodeGroup(this.currentRunState, false);
                 this.runStateSequence.push(i.to);
-                this.nextRunStringIndex++;
-            }
-            else {
-                this.isRunningStuck = true;
+                this.setGraphNodeGroup(this.currentRunState, true);
+                this.nextRunStringCharIndex++;
+
+                isRunningStuck = false;
+                break;
             }
         }
+
+        this.isRunningStuck = isRunningStuck;
     }
 
     runToEnd() {
-        for (let i = this.nextRunStringIndex; i < this.runString.length; i++){
+        for (let i = this.nextRunStringCharIndex; i < this.runString.length; i++){
             this.runSingleStep();
         }
     }
 
+    runSingleBack() {
+        if (this.nextRunStringCharIndex === 0) {
+            return;
+        }
+
+        this.setGraphNodeGroup(this.currentRunState, false);
+        this.runStateSequence.pop();
+        this.setGraphNodeGroup(this.currentRunState, true);
+        this.isRunningStuck = false;
+        this.nextRunStringCharIndex--;
+    }
+
+    runReset() {
+        this.setGraphNodeGroup(this.currentRunState, false);
+        this.nextRunStringCharIndex = 0;
+        this.runStateSequence = [this.states.find(x => x.type === AUTOMATA_STATE_TYPES.START)];
+        this.setGraphNodeGroup(this.currentRunState, true);
+        this.isRunningStuck = false;
+    }
+
+    ///// State&transition management functions
+    clearAll() {
+        this.nextStateId = 0;
+        this.nextEdgeId = 0;
+        this.states = [];
+        this.graphNodes = [];
+        this.graphEdges = [];
+        this.reactivityCounter = 0;
+    }
     // requirements: name(String) cannot be empty and must be unique; 
     // stateType(Number) has to be one of STATE_TYPES in automata-state-types.js;
     // x(Number); y(Number) are canvas coords
@@ -215,12 +262,22 @@ export class DfaInstance{
             const toState = this.states.find(x => x.id === toId);
             fromTransitions.push({ to: toState, toId, chars });
 
-            this.graphEdges.push({
+            const newEdge = {
                 id: this.nextEdgeId.toString(),
                 from: fromId,
                 to: toId,
                 label: getLabelFromTransitionChars(chars)
-            });
+            };
+
+            // if there is a reverse transition, then add a curve to this edge
+            // to avoid draw conflict
+            if (this.graphEdges.find(x => x.from === toId && x.to === fromId)) {
+                newEdge.smooth = {
+                    type: "curvedCW"
+                };
+            }
+
+            this.graphEdges.push(newEdge);
 
             this.nextEdgeId++;
         }
@@ -314,9 +371,19 @@ export class DfaInstance{
 
     // requirements: id(String) has to be valid
     removeTransition(id) {
+        // remove the edge in graphEdges
         const edgeToBeRemoved =
             this.graphEdges.splice(this.graphEdges.findIndex(x => x.id === id), 1)[0];
+            
+        // remove reverse edge smooth curve if any
+        const reverseEdge = this.graphEdges.find(
+            x => x.from === edgeToBeRemoved.to && x.to === edgeToBeRemoved.from);
         
+        if (reverseEdge) {
+            delete reverseEdge.smooth;
+        }
+        
+        // remove the transition in State.transitions
         const transitionFromState = this.states.find(x => x.id === edgeToBeRemoved.from);
 
         transitionFromState.transitions.splice(

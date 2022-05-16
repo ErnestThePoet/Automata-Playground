@@ -60,9 +60,9 @@ const DfaToolbar = props => {
                     props.appState.currentState === APP_STATES.ADD_STATE_SELECT_POSITION
                         ? styles.spanButtonWrapperActive : "",
                     props.appState.currentState === APP_STATES.RUN_AUTOMATA
-                        ?styles.spanButtonWrapperDisabled:"")}
+                        ? styles.spanButtonWrapperDisabled : "")}
                     onClick={onAddStateClick}>
-                    <i className={classnames(styles.iButtonIcon,"fa-solid fa-circle-plus")}></i>
+                    <i className={classnames(styles.iButtonIcon, "fa-solid fa-circle-plus")}></i>
                     <span className={styles.spanButtonText}>
                         添加状态
                     </span>
@@ -72,8 +72,10 @@ const DfaToolbar = props => {
                     styles.spanButtonWrapper,
                     "d-flex flex-column align-items-center",
                     props.appState.currentState === APP_STATES.ADD_TRANSITION_SELECT_ORIG
-                        || props.appState.currentState === APP_STATES.ADD_TRANSITION_SELECT_DEST
-                        ? styles.spanButtonWrapperActive : "",
+                        ? styles.spanButtonWrapperActive
+                        : (props.appState.currentState === APP_STATES.ADD_TRANSITION_SELECT_DEST
+                            ? styles.spanButtonWrapperActiveSecond
+                            : ""),
                     props.appState.currentState === APP_STATES.RUN_AUTOMATA
                         ? styles.spanButtonWrapperDisabled : "")}
                     onClick={onAddTransitionClick}>
@@ -84,7 +86,7 @@ const DfaToolbar = props => {
                                 ? "选择起点"
                                 : (props.appState.currentState === APP_STATES.ADD_TRANSITION_SELECT_DEST
                                     ? "选择终点"
-                                :"添加转移")
+                                    : "添加转移")
                         }
                     </span>
                 </span>
@@ -93,8 +95,8 @@ const DfaToolbar = props => {
                     styles.spanButtonWrapper,
                     "d-flex flex-column align-items-center",
                     props.appState.currentState === APP_STATES.EDIT_STATE
-                        ||props.appState.currentState===APP_STATES.EDIT_TRANSITION
-                        ? "" :styles.spanButtonWrapperDisabled )}
+                        || props.appState.currentState === APP_STATES.EDIT_TRANSITION
+                        ? "" : styles.spanButtonWrapperDisabled)}
                     onClick={onRemoveSelectedClick}>
                     <i className={classnames(styles.iButtonIcon, "fa-solid fa-trash-can")}></i>
                     <span className={styles.spanButtonText}>删除选中</span>

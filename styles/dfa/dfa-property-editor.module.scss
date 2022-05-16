@@ -5,7 +5,7 @@
     background-color: $property-editor-background-color;
     height: $property-editor-height;
     width: fit-content;
-    padding: 0 10px;
+    padding: 0 10px 0 15px;
     z-index: $z-index-property-editor;
 
     user-select: none;
@@ -17,6 +17,17 @@
 .spanStateTypeGroup{
     font-size: 13px;
     margin-left: 10px;
+}
+
+.iDragArea{
+    position: absolute;
+    color: #555;
+    top: 50%;
+    left: 3px;
+    padding: 10px 3px;
+    transform: translateY(-50%);
+
+    cursor:move;
 }
 
 .inPropertyInput{
