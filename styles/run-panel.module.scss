@@ -13,7 +13,9 @@
 }
 
 .iRunControl{
-    padding: 5px;
+    width: 10vw;
+    text-align: center;
+    padding: 8px;
     border-radius: 5px;
     background-color: $toolbar-button-background-color;
     color: $toolbar-button-text-color;
@@ -38,7 +40,7 @@
     @extend .iRunControl;
 
     &:hover {
-        background-color: rgb(255, 0, 89);
+        background-color: rgb(255, 52, 96);
     }
 
     &:active {
@@ -47,11 +49,16 @@
 }
 
 .divLowerPartWrapper{
-    margin: 5px 0;
+    margin-top: 10px;
+    padding: 5px;
+
+    border-radius: 5px;
+    background-color: $toolbar-button-background-color;
+    box-shadow: 1px 1px 5px -2px rgba(0, 0, 0, 0.50);
 }
 
 .spanLowerLeftPartWrapper{
-    width: 120px;
+    width: 60vw;
     font-size: 14px;
     font-family: 'Libre Baskerville', serif;
 }
@@ -83,17 +90,22 @@
 }
 
 .spanLowerRightPartWrapper{
+    margin-left: 5px;
     padding: 0 5px;
     user-select: none;
 }
 
 .spanCurrentStateLabel{
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .spanCurrentState{
-    font-size: 15px;
-    padding: 10px;
+    width: 2.5em;
+    height: 2.5em;
+    line-height: 2.5em;
+    text-align: center;
+    box-sizing: content-box;
+    font-size: 14px;
     border-radius: 50%;
     border: 2px solid black;
 }

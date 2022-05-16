@@ -112,7 +112,7 @@ export class DfaInstance{
     }
 
     get currentRunState() {
-        return this.runStateSequence[this.runStateSequence.length - 1];
+        return this.runStateSequence[this.runStateSequence.length - 1]??{name:""};
     }
 
     ///////////////////////////////// Action /////////////////////////////////
@@ -125,6 +125,7 @@ export class DfaInstance{
     // should be called when entering RUN_AUTOMATA state
     // must be called before runSingleStep or runToEnd
     initRun() {
+        this.setRunString("001");
         // set state sequence to include only start state
         this.nextRunStringIndex = 0;
         this.runStateSequence = [this.states.find(x => x.type === AUTOMATA_STATE_TYPES.START)];

@@ -11,7 +11,7 @@ import { adjustPropertyEditorPosition } from "modules/utilities";
 
 import DfaPropertyEditor from "components/dfa/dfa-property-editor";
 import AutomataToolbar from "components/automata-toolbar";
-import RunPanel from "components/run-panel";
+import DfaRunPanel from "components/dfa/dfa-run-panel";
 
 import { handleGraphClick,handleGraphDragEnd } from "modules/dfa/dfa-page-operations";
 import { initGraph, updateGraph } from "modules/graph-operations";
@@ -96,6 +96,7 @@ export default class DfaPage extends react.Component {
         }
 
         this.pageAppState.changeAppState(APP_STATES.RUN_AUTOMATA);
+        this.pageDfaInstance.initRun();
     };
 
     pageDfaInstance = new DfaInstance();
@@ -147,10 +148,9 @@ export default class DfaPage extends react.Component {
                     display: appState.currentState === APP_STATES.RUN_AUTOMATA ? "none" : "block"
                 }} />
             
-            <RunPanel
+            <DfaRunPanel
                 appState={appState}
                 dfaInstance={dfaInstance}
-                hasIterationLimit={false}
                 className={styles.bottomToolbar}
                 style={{
                     display: appState.currentState === APP_STATES.RUN_AUTOMATA ? "block" : "none"

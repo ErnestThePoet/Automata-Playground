@@ -52,7 +52,7 @@ const DfaToolbar = props => {
     }
 
     return (
-        <div className={classnames(props.className, styles.divToolbarWrapper)}>
+        <div className={classnames(props.className, styles.divToolbarWrapper)} style={props.style}>
             <div className="d-flex justify-content-center">
                 <span className={classnames(
                     styles.spanButtonWrapper,
