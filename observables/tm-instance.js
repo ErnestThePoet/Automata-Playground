@@ -216,6 +216,11 @@ export class TmInstance{
     }
 
     runSingleStep() {
+        // run on empty string
+        if (this.nextRunStringCharIndex > this.modifiedRunString.length - 1) {
+            return;
+        }
+
         if (this.currentRunState.type === AUTOMATA_STATE_TYPES.FINAL
             || this.isRunningStuck
             || this.isStepLimitExceeded) {
@@ -275,6 +280,11 @@ export class TmInstance{
 
     // returns whether exceeded step limit
     runToEnd() {
+        // run on empty string
+        if (this.nextRunStringCharIndex > this.modifiedRunString.length - 1) {
+            return;
+        }
+        
         while (this.currentRunState.type !== AUTOMATA_STATE_TYPES.FINAL) {
             if (this.isRunningStuck) {
                 break;

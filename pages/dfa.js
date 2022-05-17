@@ -42,6 +42,12 @@ export default class DfaPage extends react.Component {
             return null;
         }
         else {
+            // make sure all nodes are not in XXX_CURRENT group
+            if (this.pageAppState.currentState === APP_STATES.RUN_AUTOMATA) {
+                this.pageDfaInstance.runExit();
+                this.pageAppState.changeAppState(APP_STATES.DEFAULT);
+            }
+
             return generateDfaJsonString(this.pageDfaInstance);
         }
     };

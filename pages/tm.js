@@ -42,6 +42,12 @@ export default class TmPage extends react.Component {
             return null;
         }
         else {
+            // make sure all nodes are not in XXX_CURRENT group
+            if (this.pageAppState.currentState === APP_STATES.RUN_AUTOMATA) {
+                this.pageTmInstance.runExit();
+                this.pageAppState.changeAppState(APP_STATES.DEFAULT);
+            }
+
             return generateTmJsonString(this.pageTmInstance);
         }
     };
