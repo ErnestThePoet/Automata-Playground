@@ -33,6 +33,8 @@ const PAGE_PATHS = {
     TM_PAGE: "/tm"
 };
 
+const BASE_PATH = "/Automata-Playground";
+
 class MyApp extends react.Component {
     constructor(props) {
         super(props);
@@ -159,7 +161,7 @@ class MyApp extends react.Component {
             isExampleDialogShow: false
         });
 
-        fetch(this.data.exampleJsonUrl)
+        fetch(BASE_PATH+this.data.exampleJsonUrl)
             .then(res => {
                 return res.text();
             })
@@ -198,7 +200,7 @@ class MyApp extends react.Component {
     };
 
     onOnlineExamplesClick = () => {
-        fetch("/example-list.json")
+        fetch(BASE_PATH+"/example-list.json")
             .then(res => {
                 return res.text();
             })
@@ -267,6 +269,13 @@ class MyApp extends react.Component {
                     <br />
                     哈尔滨工业大学 120L021615 崔子健
                     <br />
+
+                    <div style={{ marginTop: 7 }}>
+                        项目地址：
+                        <a href="https://github.com/ErnestThePoet/Automata-Playground">Github</a>
+                        <a style={{marginLeft:7}} href="https://gitee.com/ecui/automata-playground">Gitee</a>
+                    </div>
+
                     <div style={{ textAlign: "center", marginTop: 7 }}>
                         May 2022, Ernest Cui
                     </div>
