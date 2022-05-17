@@ -7,7 +7,7 @@ import { TM_MAX_RUN_STEP_COUNT } from "observables/tm-instance";
 
 import { START_NODE_BKG_COLOR, NORMAL_NODE_BKG_COLOR, FINAL_NODE_BKG_COLOR } from "styles/graph-theme";
 
-import styles from "styles/tm/tm-run-panel.module.scss";
+import styles from "styles/dfa-tm/dfa-tm-run-panel.module.scss";
 import classnames from "classnames";
 
 // props requires appState, tmInstance, alertData
@@ -33,15 +33,15 @@ export default observer(props => {
     const onRunToEndClick = e => {
         e.stopPropagation();
 
-        props.tmInstance.runToEnd();
+        const isStepLimitExceeded = props.tmInstance.runToEnd();
 
         if (props.tmInstance.isRunningStuck) {
             if (!props.alertData.isAlertShow) {
                 props.alertData.showAlertAnimated("图灵机处于卡死状态");
             }
         }
-
-        if (props.tmInstance.isStepLimitExceeded) {
+        
+        if (isStepLimitExceeded) {
             if (!props.alertData.isAlertShow) {
                 props.alertData.showAlertAnimated(`已超过最大步数限制(${TM_MAX_RUN_STEP_COUNT})`);
             }
@@ -91,7 +91,7 @@ export default observer(props => {
             <div className={classnames(styles.divLowerPartWrapper, "d-flex")}>
                 <span className={styles.spanLowerLeftPartWrapper}>
                     <div className={classnames(styles.divStringWrapper, "d-flex flex-wrap")}>
-                        {props.tmInstance.runString.split("").map((x, i) => (
+                        {props.tmInstance.modifiedRunString.split("").map((x, i) => (
                             <span key={i} className={i === props.tmInstance.nextRunStringCharIndex
                                 ? styles.spanStringCharConsumed : styles.spanStringChar}>{x}</span>
                         ))}

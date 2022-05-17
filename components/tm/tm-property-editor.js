@@ -2,7 +2,8 @@ import { observer } from "mobx-react-lite";
 
 import classnames from "classnames";
 
-import styles from "styles/tm/tm-property-editor.module.scss";
+import styles from "styles/dfa-tm/dfa-tm-property-editor.module.scss";
+import tmStyles from "styles/tm/tm-property-editor.module.scss";
 import { AUTOMATA_STATE_TYPES } from "observables/automata-state-types";
 import { APP_STATES } from "observables/app-state";
 
@@ -103,8 +104,8 @@ export default observer(props => {
             case APP_STATES.EDIT_TRANSITION:
                 props.tmInstance.editTransition(
                     props.propertyEditorData.selectedGraphEdgeId,
-                    props.propertyEditorData.editorInputTexts[0].toUpperCase(),
-                    props.propertyEditorData.editorInputTexts[1].toUpperCase(),
+                    props.propertyEditorData.editorInputTexts[0],
+                    props.propertyEditorData.editorInputTexts[1],
                     props.propertyEditorData.editorInputTexts[2].toUpperCase(),
                 );
 
@@ -176,7 +177,9 @@ export default observer(props => {
             </label>
             
             <input
-                className={styles.inPropertyInput}
+                className={props.appState.currentState === APP_STATES.EDIT_STATE
+                    ? styles.inPropertyInput
+                    : tmStyles.inPropertyInput}
                 style={props.propertyEditorData.isInvalidInputWarningShow ? { borderColor: "red", color: "red" } : {}}
                 type="text"
                 value={props.propertyEditorData.editorInputTexts[0]}
@@ -186,7 +189,7 @@ export default observer(props => {
             {
                 props.appState.currentState === APP_STATES.EDIT_TRANSITION &&
                 <input
-                className={styles.inPropertyInput}
+                    className={tmStyles.inPropertyInput}
                 style={props.propertyEditorData.isInvalidInputWarningShow ? { borderColor: "red", color: "red" } : {}}
                 type="text"
                 value={props.propertyEditorData.editorInputTexts[1]}
@@ -197,7 +200,7 @@ export default observer(props => {
             {
                 props.appState.currentState === APP_STATES.EDIT_TRANSITION &&
                 <input
-                    className={styles.inPropertyInput}
+                    className={tmStyles.inMoveSeqInput}
                     style={props.propertyEditorData.isInvalidInputWarningShow ? { borderColor: "red", color: "red" } : {}}
                     type="text"
                     value={props.propertyEditorData.editorInputTexts[2]}

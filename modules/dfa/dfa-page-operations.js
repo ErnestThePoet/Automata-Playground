@@ -57,7 +57,7 @@ export function handleGraphClick(
 
         case APP_STATES.ADD_STATE_SELECT_POSITION:
             // get click point coordination, get a state name and go to EDIT_STATE
-            const newStateName = `q${pageDfaInstance.nextStateId}`;
+            const newStateName = `q${pageDfaInstance.minimumUnoccupiedStateId}`;
             const newStateType = pageDfaInstance.states.length == 0 ?
                 AUTOMATA_STATE_TYPES.START :
                 AUTOMATA_STATE_TYPES.NORMAL;

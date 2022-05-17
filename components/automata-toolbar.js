@@ -12,7 +12,7 @@ const DfaToolbar = props => {
 
         // when adding a state, press again will exit adding
         if (props.appState.currentState === APP_STATES.ADD_STATE_SELECT_POSITION) {
-            props.appState.changeAppState(APP_STATES.NORMAL);
+            props.appState.changeAppState(APP_STATES.DEFAULT);
         }
         // except when running automata, on any other state we enter add state mode
         else if (props.appState.currentState !== APP_STATES.RUN_AUTOMATA) {
@@ -25,7 +25,7 @@ const DfaToolbar = props => {
 
         if (props.appState.currentState === APP_STATES.ADD_TRANSITION_SELECT_ORIG
             || props.appState.currentState === APP_STATES.ADD_TRANSITION_SELECT_DEST) {
-            props.appState.changeAppState(APP_STATES.NORMAL);
+            props.appState.changeAppState(APP_STATES.DEFAULT);
         }
         else if (props.appState.currentState !== APP_STATES.RUN_AUTOMATA) {
             props.appState.changeAppState(APP_STATES.ADD_TRANSITION_SELECT_ORIG);

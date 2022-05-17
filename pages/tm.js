@@ -9,7 +9,7 @@ import { PropertyEditorData } from "observables/property-editor-data";
 import { AlertData } from "observables/alert-data";
 import { adjustPropertyEditorPosition } from "modules/utilities";
 import {
-    loadTmJsonString,
+    loadAutomataData,
     generateTmJsonString
 } from "modules/automata-json";
 
@@ -28,12 +28,12 @@ export default class TmPage extends react.Component {
         super(props);
     }
 
-    loadAutomataJsonString = (tmJsonString, isQueryIsEmpty = false) => {
-        if (isQueryIsEmpty) {
-            return this.pageTmInstance.isAutomataEmpty;
-        }
+    isAutomataEmpty = () => {
+        return this.pageTmInstance.isAutomataEmpty;
+    };
 
-        loadTmJsonString(tmJsonString, this.pageTmInstance, this.pageAlertData);
+    loadAutomataJsonString = tmData => {
+        loadAutomataData(tmData, this.pageTmInstance);
     };
 
     exportAutomataJsonString = () => {
@@ -47,6 +47,7 @@ export default class TmPage extends react.Component {
     };
 
     clearAll = () => {
+        this.pageAppState.changeAppState(APP_STATES.DEFAULT);
         this.pageTmInstance.clearAll();
     }
 

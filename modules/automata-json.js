@@ -20,42 +20,64 @@ export function generateDfaJsonString(dfaInstance) {
     });
 }
 
-export function loadDfaJsonString(dfaJsonString, dfaInstance, alertData) {
-    let dfaData;
+export function generateTmJsonString(tmInstance) {
+    return JSON.stringify({
+        automataType: AUTOMATA_TYPE_TOKENS.TM,
+        version: currentVersion,
+        nextStateId: tmInstance.nextStateId,
+        nextEdgeId: tmInstance.nextEdgeId,
+        states: tmInstance.states,
+        graphNodes: tmInstance.graphNodes,
+        graphEdges: tmInstance.graphEdges
+    });
+}
+
+export function parseAutomataJson(jsonString, alertData){
+    let automataData;
     try {
-        dfaData = JSON.parse(dfaJsonString);
+        automataData = JSON.parse(jsonString);
     } catch (error) {
         alertData.showAlertAnimated("文件格式非法");
-        return;
+        return null;
     }
 
-    if (!dfaData.automataType
-        || !dfaData.version
-        || !dfaData.nextStateId
-        || !dfaData.nextEdgeId
-        || !dfaData.states
-        || !dfaData.graphNodes
-        || !dfaData.graphEdges) {
+    if (!automataData.automataType
+        || !automataData.version
+        || !automataData.nextStateId
+        || !automataData.nextEdgeId
+        || !automataData.states
+        || !automataData.graphNodes
+        || !automataData.graphEdges) {
         alertData.showAlertAnimated("文件格式非法");
-        return;
+        return null;
     }
 
-    if (dfaData.automataType !== AUTOMATA_TYPE_TOKENS.DFA) {
-        alertData.showAlertAnimated("自动机类型不是DFA");
-        return;
-    }
-
-    if (dfaData.version < minDfaAcceptableVersion
-        || dfaData.version > maxDfaAcceptableVersion) {
+    if (automataData.version < minDfaAcceptableVersion
+        || automataData.version > maxDfaAcceptableVersion) {
         alertData.showAlertAnimated("文件版本不兼容");
-        return;
+        return null;
     }
 
-    dfaInstance.loadDfaData(
-        dfaData.nextStateId,
-        dfaData.nextEdgeId,
-        dfaData.states,
-        dfaData.graphNodes,
-        dfaData.graphEdges
+    return automataData;
+}
+
+export function getAutomataType(automataData) {
+    switch (automataData.automataType) {
+        case AUTOMATA_TYPE_TOKENS.DFA:
+            return "DFA";
+        case AUTOMATA_TYPE_TOKENS.TM:
+            return "TM";
+        default:
+            return "";
+    }
+}
+
+export function loadAutomataData(automataData, automataInstance) {
+    automataInstance.loadData(
+        automataData.nextStateId,
+        automataData.nextEdgeId,
+        automataData.states,
+        automataData.graphNodes,
+        automataData.graphEdges
     );
 }

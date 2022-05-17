@@ -54,7 +54,7 @@ export function handleGraphClick(
 
         case APP_STATES.ADD_STATE_SELECT_POSITION:
             // get click point coordination, get a state name and go to EDIT_STATE
-            const newStateName = `q${pageTmInstance.nextStateId}`;
+            const newStateName = `q${pageTmInstance.minimumUnoccupiedStateId}`;
             const newStateType = pageTmInstance.states.length == 0 ?
                 AUTOMATA_STATE_TYPES.START :
                 AUTOMATA_STATE_TYPES.NORMAL;
@@ -103,7 +103,7 @@ export function handleGraphClick(
                 // check validity
                 pageTmInstance.addTransition(
                     pagePropertyEditorData.selectedGraphNodeId, e.nodes[0],
-                "ab","XY","RL");
+                "0","X","R");
                 
                 pagePropertyEditorData.setSelectedGraphEdgeId(
                     pageTmInstance.getEdgeId(

@@ -9,7 +9,7 @@ import { PropertyEditorData } from "observables/property-editor-data";
 import { AlertData } from "observables/alert-data";
 import { adjustPropertyEditorPosition } from "modules/utilities";
 import {
-    loadDfaJsonString,
+    loadAutomataData,
     generateDfaJsonString
 } from "modules/automata-json";
 
@@ -28,12 +28,12 @@ export default class DfaPage extends react.Component {
         super(props);
     }
 
-    loadAutomataJsonString = (dfaJsonString, isQueryIsEmpty=false) => {
-        if (isQueryIsEmpty) {
-            return this.pageDfaInstance.isAutomataEmpty;
-        }
+    isAutomataEmpty = () => {
+        return this.pageDfaInstance.isAutomataEmpty;
+    };
 
-        loadDfaJsonString(dfaJsonString, this.pageDfaInstance, this.pageAlertData);
+    loadAutomataJsonString = dfaData => {
+        loadAutomataData(dfaData, this.pageDfaInstance);
     };
 
     exportAutomataJsonString = () => {
@@ -47,6 +47,7 @@ export default class DfaPage extends react.Component {
     };
 
     clearAll = () => {
+        this.pageAppState.changeAppState(APP_STATES.DEFAULT);
         this.pageDfaInstance.clearAll();
     }
 

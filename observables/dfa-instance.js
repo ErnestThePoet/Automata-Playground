@@ -68,7 +68,7 @@ export class DfaInstance{
     graphEdges = [];
 
     ///// Run automata data
-    runString = "";
+    runString = "010";
     nextRunStringCharIndex = 0;
     runStateSequence = []; // Array<State>
     isRunningStuck = false;
@@ -131,6 +131,14 @@ export class DfaInstance{
     }
 
     ///////////////////////////////// Computed /////////////////////////////////
+    get minimumUnoccupiedStateId() {
+        // nextStateId must be unoccupied
+        for (let i = 0; i <= this.nextStateId; i++){
+            if (this.states.find(x => x.id === i) === undefined) {
+                return i;
+            }
+        }
+    }
     // check if there is a start state
     get hasStartState() {
         return this.states.find(x => x.type === AUTOMATA_STATE_TYPES.START) !== undefined;
@@ -158,9 +166,7 @@ export class DfaInstance{
     // should be called when entering RUN_AUTOMATA state
     // must be called before runSingleStep or runToEnd
     initRun() {
-        if (this.runString === "") {
-            this.setRunString("001");
-        }
+        // it keeps runString unchanged
         // set state sequence to include only start state
         this.nextRunStringCharIndex = 0;
         this.runStateSequence = [this.states.find(x => x.type === AUTOMATA_STATE_TYPES.START)];
@@ -228,12 +234,14 @@ export class DfaInstance{
     }
 
     ///// Load DFA from file read
-    loadDfaData(nextStateId, nextEdgeId, states, graphNodes, graphEdges) {
+    loadData(nextStateId, nextEdgeId, states, graphNodes, graphEdges) {
         this.nextStateId = nextStateId;
         this.nextEdgeId = nextEdgeId;
         this.states = states;
         this.graphNodes = graphNodes;
         this.graphEdges = graphEdges;
+
+        this.reactivityCounter = 0;
     }
 
     ///// State&transition management functions
@@ -243,6 +251,7 @@ export class DfaInstance{
         this.states = [];
         this.graphNodes = [];
         this.graphEdges = [];
+        
         this.reactivityCounter = 0;
     }
     // requirements: name(String) cannot be empty and must be unique; 

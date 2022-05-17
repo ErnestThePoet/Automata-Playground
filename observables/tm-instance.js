@@ -4,10 +4,10 @@ import {
     toGraphNodeGroup
 } from "observables/automata-state-types";
 
-export const TM_MAX_RUN_STEP_COUNT = 5000;
+export const TM_MAX_RUN_STEP_COUNT = 3000;
 
 function getLabelFromTransitionMoves(moves) {
-    return moves.map(x=>`${x.char}/${x.replace},${x.move==='L'?'←':'→'}`).join(" ");
+    return moves.map(x=>`${x.char}/${x.replace}${x.move==='L'?'←':'→'}`).join(",");
 }
 
 export class TmInstance{
@@ -76,10 +76,12 @@ export class TmInstance{
 
     ///// Run automata data
     // original run string not modified by the TM
-    origRunString = "";
-    runString = "";
+    runString = "010";
+    modifiedRunString = "010";
     nextRunStringCharIndex = 0;
     runStateSequence = []; // Array<State>
+    // added to help runSingleBack
+    runCharMoveSequence = []; // Array<{char:String, move:String, "L"|"R"}>
     isRunningStuck = false;
     currentRunStepCount = 0;
     ///////////////////////////////// ComputedFn /////////////////////////////////
@@ -89,15 +91,16 @@ export class TmInstance{
     }
 
     isTransitionMoveSeqValid(moveSeq) {
-        return moveSeq.toUpperCase().split("").find(x => x !== "L" && x !== "R") !== undefined;
+        return moveSeq.toUpperCase().split("").find(x => x !== "L" && x !== "R") === undefined;
     }
 
     // requirements: id(String) must be valid; charSeq(String) length>0
     // return [isUnique, firstDuplicatedChar]
     isTransitionCharSeqUnique(id, charSeq) {
+        const chars = charSeq.split("");
         // search for duplications inside
         for (const i of charSeq) {
-            if (charSeq.reduce((p, x) => p + (x === i ? 1 : 0), 0) != 1) {
+            if (chars.reduce((p, x) => p + (x === i ? 1 : 0), 0) != 1) {
                 return [false, i];
             }
         }
@@ -158,6 +161,14 @@ export class TmInstance{
     }
 
     ///////////////////////////////// Computed /////////////////////////////////
+    get minimumUnoccupiedStateId() {
+        // nextStateId must be unoccupied
+        for (let i = 0; i <= this.nextStateId; i++) {
+            if (this.states.find(x => x.id === i) === undefined) {
+                return i;
+            }
+        }
+    }
     // check if there is a start state
     get hasStartState() {
         return this.states.find(x => x.type === AUTOMATA_STATE_TYPES.START) !== undefined;
@@ -183,19 +194,18 @@ export class TmInstance{
     }
     // requirements: runString(String) cannot be empty
     setRunString(runString) {
-        this.origRunString = runString;
         this.runString = runString;
+        this.modifiedRunString = runString;
     }
     
     // should be called when entering RUN_AUTOMATA state
     // must be called before runSingleStep or runToEnd
     initRun() {
-        if (this.runString === "") {
-            this.setRunString("aba");
-        }
+        // it keeps runString unchanged
         // set state sequence to include only start state
         this.nextRunStringCharIndex = 0;
         this.runStateSequence = [this.states.find(x => x.type === AUTOMATA_STATE_TYPES.START)];
+        this.runCharMoveSequence = [];
         this.setGraphNodeGroup(this.currentRunState, true);
         this.isRunningStuck = false;
         this.currentRunStepCount = 0;
@@ -206,26 +216,28 @@ export class TmInstance{
     }
 
     runSingleStep() {
-        if (this.isRunningStuck) {
+        if (this.currentRunState.type === AUTOMATA_STATE_TYPES.FINAL
+            || this.isRunningStuck
+            || this.isStepLimitExceeded) {
             return;
         }
 
         this.currentRunStepCount++;
-        if (this.isStepLimitExceeded) {
-            // restore original run string
-            this.runString = this.origRunString;
-            return;
-        }
 
         let isRunningStuck = true;
 
         for (const i of this.currentRunState.transitions) {
+            let shouldBreak = false;
             for (const j of i.moves) {
-                if (j.char===this.runString[this.nextRunStringCharIndex]) {
+                if (j.char===this.modifiedRunString[this.nextRunStringCharIndex]) {
                     this.setGraphNodeGroup(this.currentRunState, false);
                     this.runStateSequence.push(this.states.find(x => x.id === i.toId));
+                    this.runCharMoveSequence.push({ char: j.char, move: j.move });
                     this.setGraphNodeGroup(this.currentRunState, true);
-                    this.runString[this.nextRunStringCharIndex] = j.replace;
+
+                    const runStringChars = this.modifiedRunString.split("");
+                    runStringChars[this.nextRunStringCharIndex] = j.replace;
+                    this.modifiedRunString = runStringChars.join("");
 
                     if (j.move === "L") {
                         this.nextRunStringCharIndex--;
@@ -236,42 +248,59 @@ export class TmInstance{
 
                     isRunningStuck = false;
 
-                    const runStringOrigLength = this.runString.length;
+                    const runStringOrigLength = this.modifiedRunString.length;
 
                     // pad Bs
                     if (this.nextRunStringCharIndex > runStringOrigLength - 1) {
-                        this.runString +=
+                        this.modifiedRunString +=
                             "B".repeat(this.nextRunStringCharIndex - runStringOrigLength + 1);
                     }
                     else if (this.nextRunStringCharIndex < 0) {
-                        this.runString = "B".repeat(-this.nextRunStringCharIndex) + this.runString;
+                        this.modifiedRunString = "B".repeat(-this.nextRunStringCharIndex) + this.modifiedRunString;
                         this.nextRunStringCharIndex = 0;
                     }
 
+                    shouldBreak = true;
                     break;
                 }
+            }
+
+            if (shouldBreak) {
+                break;
             }
         }
 
         this.isRunningStuck = isRunningStuck;
     }
 
+    // returns whether exceeded step limit
     runToEnd() {
-        while (this.currentRunState.tyle !== AUTOMATA_STATE_TYPES.FINAL) {
-            if (this.isRunningStuck || this.isStepLimitExceeded) {
+        while (this.currentRunState.type !== AUTOMATA_STATE_TYPES.FINAL) {
+            if (this.isRunningStuck) {
                 break;
+            }
+            if (this.isStepLimitExceeded) {
+                // clean up UI
+                this.runReset();
+                return true;
             }
             this.runSingleStep();
         }
+
+        return false;
     }
 
     runSingleBack() {
+        if (this.runCharMoveSequence.length === 0) {
+            return;
+        }
+
         this.setGraphNodeGroup(this.currentRunState, false);
         this.runStateSequence.pop();
         this.setGraphNodeGroup(this.currentRunState, true);
         this.isRunningStuck = false;
 
-        if (this.currentRunState.move === "L") {
+        if (this.runCharMoveSequence[this.runCharMoveSequence.length-1].move === "L") {
             this.nextRunStringCharIndex++;
         }
         else {
@@ -279,26 +308,35 @@ export class TmInstance{
         }
 
         // here we do not undo runString padding modification.
-        this.runString[this.nextRunStringCharIndex] = this.currentRunState.char;
+        const runStringChars = this.modifiedRunString.split("");
+        runStringChars[this.nextRunStringCharIndex] =
+            this.runCharMoveSequence[this.runCharMoveSequence.length - 1].char;
+        this.modifiedRunString = runStringChars.join("");
+
+        this.runCharMoveSequence.pop();
+        this.currentRunStepCount--;
     }
 
     runReset() {
         this.setGraphNodeGroup(this.currentRunState, false);
         this.nextRunStringCharIndex = 0;
         this.runStateSequence = [this.states.find(x => x.type === AUTOMATA_STATE_TYPES.START)];
+        this.runCharMoveSequence = [];
         this.setGraphNodeGroup(this.currentRunState, true);
-        this.runString = this.origRunString;
+        this.modifiedRunString = this.runString;
         this.isRunningStuck = false;
         this.currentRunStepCount = 0;
     }
 
     ///// Load TM from file read
-    loadTmData(nextStateId, nextEdgeId, states, graphNodes, graphEdges) {
+    loadData(nextStateId, nextEdgeId, states, graphNodes, graphEdges) {
         this.nextStateId = nextStateId;
         this.nextEdgeId = nextEdgeId;
         this.states = states;
         this.graphNodes = graphNodes;
         this.graphEdges = graphEdges;
+
+        this.reactivityCounter = 0;
     }
 
     ///// State&transition management functions
@@ -308,6 +346,7 @@ export class TmInstance{
         this.states = [];
         this.graphNodes = [];
         this.graphEdges = [];
+        
         this.reactivityCounter = 0;
     }
     // requirements: name(String) cannot be empty and must be unique; 
@@ -432,11 +471,11 @@ export class TmInstance{
 
         const newMoves = [];
 
-        for (let i = 0; i < charSeq.length; i++) {
+        for (let i = 0; i < newCharSeq.length; i++) {
             newMoves.push({
-                char: charSeq[i],
-                replace: replaceSeq[i],
-                move: moveSeq[i]
+                char: newCharSeq[i],
+                replace: newReplaceSeq[i],
+                move: newMoveSeq[i]
             });
         }
 

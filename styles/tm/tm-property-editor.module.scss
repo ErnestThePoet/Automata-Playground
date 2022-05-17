@@ -1,39 +1,10 @@
 @import "../theme";
-@import "../layout-config";
-
-.propertyEditorWrapper{
-    background-color: $property-editor-background-color;
-    height: $property-editor-height;
-    width: fit-content;
-    padding: 0 10px 0 15px;
-    z-index: $z-index-property-editor;
-
-    user-select: none;
-
-    border-radius: 10px;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
-}
-
-.spanStateTypeGroup{
-    font-size: 13px;
-    margin-left: 10px;
-}
-
-.iDragArea{
-    position: absolute;
-    color: #555;
-    top: 50%;
-    left: 3px;
-    padding: 10px 3px;
-    transform: translateY(-50%);
-
-    cursor:move;
-}
 
 .inPropertyInput{
-    width: 150px;
+    width: 60px;
     font-size: 14px;
     font-family: $automata-font-family;
+    margin-right: 5px;
     padding: 2px 5px;
     
     border: 1px solid $property-editor-input-background-color;
@@ -41,78 +12,7 @@
     outline: 0;
 }
 
-.lblInputVerticalSideLabel{
-    position: absolute;
-    font-size: 10px;
-}
-
-.lblTransitionCharsTip{
-    @extend .lblInputVerticalSideLabel;
-    top: 0;
-    color: black;
-}
-
-.lblInvalidInputInfo{
-    @extend .lblInputVerticalSideLabel;
-    bottom: 0;
-    color: red;
-}
-
-.inStateType{
-    width: 1em;
-    height: 1em;
-    margin-right: 2px;
-    background-color: #fff;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-    border: 1px solid $property-editor-input-border-color;
-    appearance: none;
-
-    border-radius: 50%;
-
-    &:checked{
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e");
-        background-color: $property-editor-state-type-radio-color;
-        border-color: $property-editor-state-type-radio-color;
-    }
-}
-
-.spanConfirmCancalWrapper{
-    font-size: medium;
-    display: inline-block;
-    height: 25px;
-    width: 30px;
-    border-radius: 5px;
-    cursor: pointer;
-
-    transition-duration: 50ms;
-}
-
-.spanConfirmWrapper{
-    @extend .spanConfirmCancalWrapper;
-    color: $property-editor-confirm-color;
-
-    margin-left: 10px;
-
-    &:hover{
-        background-color: $property-editor-confirm-hover-background-color;
-    }
-
-    &:active{
-        background-color: $property-editor-confirm-active-background-color
-    }
-}
-
-.spanCancelWrapper {
-    @extend .spanConfirmCancalWrapper;
-    color: $property-editor-cancel-color;
-
-    &:hover{
-        background-color: $property-editor-cancel-hover-background-color;
-    }
-
-    &:active{
-        background-color: $property-editor-cancel-active-background-color;
-    }
+.inMoveSeqInput {
+    @extend .inPropertyInput;
+    margin-right: 0;
 }

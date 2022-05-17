@@ -5,7 +5,7 @@ import { AUTOMATA_STATE_TYPES } from "observables/automata-state-types";
 
 import { START_NODE_BKG_COLOR,NORMAL_NODE_BKG_COLOR,FINAL_NODE_BKG_COLOR } from "styles/graph-theme";
 
-import styles from "styles/dfa/dfa-run-panel.module.scss";
+import styles from "styles/dfa-tm/dfa-tm-run-panel.module.scss";
 import classnames from "classnames";
 
 // props requires appState, dfaInstance, alertData

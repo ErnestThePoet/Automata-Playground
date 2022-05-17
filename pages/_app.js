@@ -1,5 +1,9 @@
 import react from "react";
-import Link from "next/link";
+
+// in class component, we cannot use useRouter()
+import Router from "next/router";
+
+import { parseAutomataJson, getAutomataType } from "modules/automata-json";
 
 import YesNoDialog from "components/yes-no-dialog";
 
@@ -13,8 +17,15 @@ import "@fortawesome/fontawesome-free/css/fontawesome.min.css";
 import "@fortawesome/fontawesome-free/css/solid.min.css";
 
 const DIALOG_AFFAIRS = {
-    CONFIRM_LOAD_FILE: 0,
-    CONFIRM_CLEAR_ALL: 1
+    CONFIRM_NEW_DFA:0,
+    CONFIRM_NEW_TM:1,
+    CONFIRM_LOAD_FILE: 2,
+    CONFIRM_CLEAR_ALL: 3
+};
+
+const PAGE_PATHS = {
+    DFA_PAGE: "/dfa",
+    TM_PAGE: "/tm"
 };
 
 class MyApp extends react.Component {
@@ -36,22 +47,37 @@ class MyApp extends react.Component {
 
     automataPageRef = react.createRef();
 
+    hideAside = () => {
+        this.setState({
+            isAsideShow: false
+        });
+    };
+
     closeDialog = yes => {
         if (!yes) {
             this.setState({
                 isYesNoDialogShow: false
             });
-
+            
             return;
         }
 
         switch (this.data.dialogAffair) {
+            case DIALOG_AFFAIRS.CONFIRM_NEW_DFA:
+                this.goToNewAutomataPage(PAGE_PATHS.DFA_PAGE);
+                break;
+            
+            case DIALOG_AFFAIRS.CONFIRM_NEW_TM:
+                this.goToNewAutomataPage(PAGE_PATHS.TM_PAGE);
+                break;
+            
             case DIALOG_AFFAIRS.CONFIRM_LOAD_FILE:
                 document.getElementById("in-import-automata").click();
                 break;
             
             case DIALOG_AFFAIRS.CONFIRM_CLEAR_ALL:
                 this.automataPageRef.current.clearAll();
+                this.hideAside();
                 break;
         }
 
@@ -62,12 +88,54 @@ class MyApp extends react.Component {
         });
     };
 
+    goToNewAutomataPage = (path, callback=()=>{}) => {
+        if (Router.pathname === path) {
+            this.automataPageRef.current.clearAll();
+            callback();
+        }
+        else {
+            Router.push(path).then(() => {
+                callback();
+            });
+        }
+
+        this.hideAside();
+    };
+
+    newDfa = () => {
+        if (this.automataPageRef.current.isAutomataEmpty()) {
+            this.goToNewAutomataPage(PAGE_PATHS.DFA_PAGE);
+            return;
+        }
+
+        this.data.dialogAffair = DIALOG_AFFAIRS.CONFIRM_NEW_DFA;
+        this.setState({
+            yesNoDialogTitle: "新建DFA",
+            yesNoDialogMessage: "当前自动机将被清空。继续吗？",
+            isYesNoDialogShow: true
+        });
+    };
+
+    newTm = () => {
+        if (this.automataPageRef.current.isAutomataEmpty()) {
+            this.goToNewAutomataPage(PAGE_PATHS.TM_PAGE);
+            return;
+        }
+
+        this.data.dialogAffair = DIALOG_AFFAIRS.CONFIRM_NEW_TM;
+        this.setState({
+            yesNoDialogTitle: "新建TM",
+            yesNoDialogMessage: "当前自动机将被清空。继续吗？",
+            isYesNoDialogShow: true
+        });
+    };
+
     onOnlineExamplesClick = () => {
         
     };
 
     onImportAutomataClick = () => {
-        if (this.automataPageRef.current.loadAutomataJsonString("", true)) {
+        if (this.automataPageRef.current.isAutomataEmpty()) {
             document.getElementById("in-import-automata").click();
             return;
         }
@@ -89,7 +157,36 @@ class MyApp extends react.Component {
         const fileReader = new FileReader();
         fileReader.readAsText(e.target.files[0]);
         fileReader.onload = res => {
-            this.automataPageRef.current.loadAutomataJsonString(res.target.result);
+            const automataData =
+                parseAutomataJson(res.target.result,
+                    this.automataPageRef.current.pageAlertData);
+            
+            if (automataData) {
+                const automataType = getAutomataType(automataData);
+
+                switch (automataType) {
+                    case "DFA":
+                        this.goToNewAutomataPage(PAGE_PATHS.DFA_PAGE, () => {
+                            this.automataPageRef.current.loadAutomataJsonString(automataData);
+                        });
+                        break;
+                    
+                    case "TM":
+                        this.goToNewAutomataPage(PAGE_PATHS.TM_PAGE, () => {
+                            this.automataPageRef.current.loadAutomataJsonString(automataData);
+                        });
+                        break;
+                    
+                    default:
+                        this.automataPageRef.current.pageAlertData
+                            .showAlertAnimated("自动机类型不受支持");
+                        break;
+                }
+            }
+
+            // clear file value to ensure onchange will be triggered again
+            // if we load the same file next time.
+            document.getElementById("in-import-automata").value = "";
         }
     };
 
@@ -106,7 +203,7 @@ class MyApp extends react.Component {
 
         const anchor = document.createElement('a');
         anchor.href = stringUrl;
-        anchor.download = "dfa.json";
+        anchor.download = `${Router.pathname==="/dfa"?"dfa":"tm"}.json`;
 
         anchor.click();
 
@@ -144,19 +241,15 @@ class MyApp extends react.Component {
                     this.state.isAsideShow ? styles.asideFunctionNavShow : "")}
                     onClick={e => { e.stopPropagation() }}>
                     <ul>
-                        <Link href="/dfa">
-                            <li>
-                                <i className="fa-solid fa-plus"></i>
-                                新建DFA
-                            </li>
-                        </Link>
+                        <li onClick={this.newDfa}>
+                            <i className="fa-solid fa-plus"></i>
+                            新建DFA
+                        </li>
 
-                        <Link href="/tm">
-                            <li>
-                                <i className="fa-solid fa-plus"></i>
-                                新建TM
-                            </li>
-                        </Link>
+                        <li onClick={this.newTm}>
+                            <i className="fa-solid fa-plus"></i>
+                            新建TM
+                        </li>
 
                         <li
                             onClick={this.onOnlineExamplesClick}
@@ -171,7 +264,7 @@ class MyApp extends react.Component {
                                 className={styles.inImportAutomata}
                                 type="file"
                                 accept=".json,application/json"
-                                onChange={this.importAutomataJsonString} />
+                                onChange={this.importAutomataJsonString}/>
                             导入
                         </li>
                         <li
