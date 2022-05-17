@@ -2,7 +2,7 @@ import { makeAutoObservable } from "mobx";
 import {
     AUTOMATA_STATE_TYPES,
     toGraphNodeGroup
-} from "observables/automata-state-types";
+} from "modules/automata-state-types";
 
 export const TM_MAX_RUN_STEP_COUNT = 3000;
 

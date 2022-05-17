@@ -5,6 +5,7 @@ export function adjustPropertyEditorPosition(
     if ((pageAppState.currentState === APP_STATES.EDIT_STATE
         || pageAppState.currentState === APP_STATES.EDIT_TRANSITION)
         && !pagePropertyEditorData.isPropertyEditorPositionAdjusted) {
+        
         const canvasWrapper = document.getElementById("div-canvas-wrapper");
         const propertyEditorWrapper = document.getElementById("property-editor-wrapper");
 

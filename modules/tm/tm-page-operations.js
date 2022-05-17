@@ -1,5 +1,5 @@
 import { APP_STATES } from "observables/app-state";
-import { AUTOMATA_STATE_TYPES } from "observables/automata-state-types";
+import { AUTOMATA_STATE_TYPES } from "modules/automata-state-types";
 
 import { checkInputValidity } from "components/tm/tm-property-editor";
 

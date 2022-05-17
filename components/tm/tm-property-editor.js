@@ -4,7 +4,7 @@ import classnames from "classnames";
 
 import styles from "styles/dfa-tm/dfa-tm-property-editor.module.scss";
 import tmStyles from "styles/tm/tm-property-editor.module.scss";
-import { AUTOMATA_STATE_TYPES } from "observables/automata-state-types";
+import { AUTOMATA_STATE_TYPES } from "modules/automata-state-types";
 import { APP_STATES } from "observables/app-state";
 
 import { adjustPropertyEditorPosition, isMobileBrowser } from "modules/utilities";

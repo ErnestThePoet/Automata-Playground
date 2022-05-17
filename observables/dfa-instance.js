@@ -2,7 +2,7 @@ import { makeAutoObservable } from "mobx";
 import {
     AUTOMATA_STATE_TYPES,
     toGraphNodeGroup
-} from "observables/automata-state-types";
+} from "modules/automata-state-types";
 
 function getLabelFromTransitionChars(chars) {
     return chars.join(",");

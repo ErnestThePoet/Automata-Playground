@@ -5,11 +5,14 @@ import Router from "next/router";
 
 import { parseAutomataJson, getAutomataType } from "modules/automata-json";
 
-import YesNoDialog from "components/yes-no-dialog";
+import { AUTOMATA_TYPES } from "modules/automata-types";
+
+import Dialog from "components/dialog";
 
 import classnames from "classnames";
 
 import styles from "styles/app.module.scss";
+import exampleDialogStyles from "styles/app-example-dialog.module.scss";
 
 // global css must be added in _app.js
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -17,10 +20,11 @@ import "@fortawesome/fontawesome-free/css/fontawesome.min.css";
 import "@fortawesome/fontawesome-free/css/solid.min.css";
 
 const DIALOG_AFFAIRS = {
-    CONFIRM_NEW_DFA:0,
-    CONFIRM_NEW_TM:1,
-    CONFIRM_LOAD_FILE: 2,
-    CONFIRM_CLEAR_ALL: 3
+    CONFIRM_NEW_DFA: 0,
+    CONFIRM_NEW_TM: 1,
+    CONFIRM_LOAD_EXAMPLE: 2,
+    CONFIRM_LOAD_FILE: 3,
+    CONFIRM_CLEAR_ALL: 4
 };
 
 const PAGE_PATHS = {
@@ -34,14 +38,20 @@ class MyApp extends react.Component {
         this.state = {
             isAsideShow: false,
 
+            isExampleDialogShow: false,
+            // each element is {title:String, url:String, type:String, one of AUTOMATA_TYPES}
+            exampleList: [],
+
             isYesNoDialogShow: false,
-            yesNoDialogTitle:"",
-            yesNoDialogMessage:""
+            yesNoDialogTitle: "",
+            yesNoDialogMessage: ""
         };
 
         // UI-irrelavant data
         this.data = {
-            dialogAffair: DIALOG_AFFAIRS.CONFIRM_CLEAR_ALL
+            dialogAffair: DIALOG_AFFAIRS.CONFIRM_CLEAR_ALL,
+
+            exampleJsonUrl: ""
         }
     }
 
@@ -58,7 +68,16 @@ class MyApp extends react.Component {
             this.setState({
                 isYesNoDialogShow: false
             });
-            
+
+            switch (this.data.dialogAffair) {
+                case DIALOG_AFFAIRS.CONFIRM_LOAD_EXAMPLE:
+                    // re-display example dialog if user didn't confirm
+                    this.setState({
+                        isExampleDialogShow:true
+                    });
+                    break;
+            }
+
             return;
         }
 
@@ -66,18 +85,21 @@ class MyApp extends react.Component {
             case DIALOG_AFFAIRS.CONFIRM_NEW_DFA:
                 this.goToNewAutomataPage(PAGE_PATHS.DFA_PAGE);
                 break;
-            
+
             case DIALOG_AFFAIRS.CONFIRM_NEW_TM:
                 this.goToNewAutomataPage(PAGE_PATHS.TM_PAGE);
                 break;
-            
+
             case DIALOG_AFFAIRS.CONFIRM_LOAD_FILE:
                 document.getElementById("in-import-automata").click();
                 break;
-            
+
             case DIALOG_AFFAIRS.CONFIRM_CLEAR_ALL:
                 this.automataPageRef.current.clearAll();
-                this.hideAside();
+                break;
+
+            case DIALOG_AFFAIRS.CONFIRM_LOAD_EXAMPLE:
+                this.loadExample();
                 break;
         }
 
@@ -88,7 +110,7 @@ class MyApp extends react.Component {
         });
     };
 
-    goToNewAutomataPage = (path, callback=()=>{}) => {
+    goToNewAutomataPage = (path, callback = () => { }) => {
         if (Router.pathname === path) {
             this.automataPageRef.current.clearAll();
             callback();
@@ -102,7 +124,51 @@ class MyApp extends react.Component {
         this.hideAside();
     };
 
-    newDfa = () => {
+    importAutomataJsonString = jsonString => {
+        const automataData =
+            parseAutomataJson(jsonString,
+                this.automataPageRef.current.pageAlertData);
+
+        if (automataData) {
+            const automataType = getAutomataType(automataData);
+
+            switch (automataType) {
+                case AUTOMATA_TYPES.DFA:
+                    this.goToNewAutomataPage(PAGE_PATHS.DFA_PAGE, () => {
+                        this.automataPageRef.current.loadAutomataJsonString(automataData);
+                    });
+                    break;
+
+                case AUTOMATA_TYPES.TM:
+                    this.goToNewAutomataPage(PAGE_PATHS.TM_PAGE, () => {
+                        this.automataPageRef.current.loadAutomataJsonString(automataData);
+                    });
+                    break;
+
+                default:
+                    this.automataPageRef.current.pageAlertData
+                        .showAlertAnimated("自动机类型不受支持");
+                    break;
+            }
+        }
+    };
+
+    loadExample = () => {
+        this.setState({
+            isExampleDialogShow: false
+        });
+
+        fetch(this.data.exampleJsonUrl)
+            .then(res => {
+                return res.text();
+            })
+            .then(res => {
+                this.importAutomataJsonString(res);
+            });
+    };
+
+    ///////////////////////////////// Aside onclick handlers /////////////////////////////////
+    onNewDfaClick = () => {
         if (this.automataPageRef.current.isAutomataEmpty()) {
             this.goToNewAutomataPage(PAGE_PATHS.DFA_PAGE);
             return;
@@ -116,7 +182,7 @@ class MyApp extends react.Component {
         });
     };
 
-    newTm = () => {
+    onNewTmClick = () => {
         if (this.automataPageRef.current.isAutomataEmpty()) {
             this.goToNewAutomataPage(PAGE_PATHS.TM_PAGE);
             return;
@@ -131,7 +197,16 @@ class MyApp extends react.Component {
     };
 
     onOnlineExamplesClick = () => {
-        
+        fetch("/example-list.json")
+            .then(res => {
+                return res.text();
+            })
+            .then(res => {
+                this.setState({
+                    isExampleDialogShow: true,
+                    exampleList: JSON.parse(res)
+                });
+            });
     };
 
     onImportAutomataClick = () => {
@@ -146,51 +221,9 @@ class MyApp extends react.Component {
             yesNoDialogMessage: "当前自动机将被清空。继续导入吗？",
             isYesNoDialogShow: true
         });
-    }
-
-    // must not use func(){} syntax or this will not point to this component.
-    importAutomataJsonString = e => {
-        if (e.target.files.length === 0) {
-            return;
-        }
-        
-        const fileReader = new FileReader();
-        fileReader.readAsText(e.target.files[0]);
-        fileReader.onload = res => {
-            const automataData =
-                parseAutomataJson(res.target.result,
-                    this.automataPageRef.current.pageAlertData);
-            
-            if (automataData) {
-                const automataType = getAutomataType(automataData);
-
-                switch (automataType) {
-                    case "DFA":
-                        this.goToNewAutomataPage(PAGE_PATHS.DFA_PAGE, () => {
-                            this.automataPageRef.current.loadAutomataJsonString(automataData);
-                        });
-                        break;
-                    
-                    case "TM":
-                        this.goToNewAutomataPage(PAGE_PATHS.TM_PAGE, () => {
-                            this.automataPageRef.current.loadAutomataJsonString(automataData);
-                        });
-                        break;
-                    
-                    default:
-                        this.automataPageRef.current.pageAlertData
-                            .showAlertAnimated("自动机类型不受支持");
-                        break;
-                }
-            }
-
-            // clear file value to ensure onchange will be triggered again
-            // if we load the same file next time.
-            document.getElementById("in-import-automata").value = "";
-        }
     };
-
-    exportAutomataJsonString = () => {
+    
+    onExportAutomataClick = () => {
         const automataJsonString = this.automataPageRef.current.exportAutomataJsonString();
 
         if (!automataJsonString) {
@@ -203,33 +236,74 @@ class MyApp extends react.Component {
 
         const anchor = document.createElement('a');
         anchor.href = stringUrl;
-        anchor.download = `${Router.pathname==="/dfa"?"dfa":"tm"}.json`;
+        anchor.download = `${Router.pathname === "/dfa" ? "dfa" : "tm"}.json`;
 
         anchor.click();
 
         URL.revokeObjectURL(stringUrl);
     };
 
-    clearAll = () => {
+    onClearAllClick = () => {
         this.data.dialogAffair = DIALOG_AFFAIRS.CONFIRM_CLEAR_ALL;
         this.setState({
             yesNoDialogTitle: "清空",
             yesNoDialogMessage: "确定清空当前自动机吗？",
-            isYesNoDialogShow:true
+            isYesNoDialogShow: true
         });
+    };
+
+    ///////////////////////////////// Sub-handlers /////////////////////////////////
+    onExampleItemClick = url => {
+        this.data.exampleJsonUrl = url;
+
+        if (this.automataPageRef.current.isAutomataEmpty()) {
+            this.loadExample();
+            return;
+        }
+
+        this.data.dialogAffair = DIALOG_AFFAIRS.CONFIRM_LOAD_EXAMPLE;
+        this.setState({
+            isExampleDialogShow:false,
+            yesNoDialogTitle: "加载示例",
+            yesNoDialogMessage: "当前自动机将被清空。继续加载吗？",
+            isYesNoDialogShow: true
+        });
+    };
+
+    // must not use func(){} syntax or this will not point to this component.
+    onFileInputChange = e => {
+        if (e.target.files.length === 0) {
+            return;
+        }
+
+        const fileReader = new FileReader();
+        fileReader.readAsText(e.target.files[0]);
+        fileReader.onload = res => {
+            this.importAutomataJsonString(res.target.result);
+
+            // clear file value to ensure onchange will be triggered again
+            // if we load the same file next time.
+            document.getElementById("in-import-automata").value = "";
+        }
     };
 
     render = () => {
         const { Component, pageProps } = this.props;
 
         return (
-            <div className={styles.divMainWrapper} onClick={() => { this.setState({ isAsideShow: false }) }}>
-                <nav className={classnames(styles.navNav, "d-flex justify-content-center align-items-center")}>
+            <div className={styles.divMainWrapper}
+                onClick={() => { this.setState({ isAsideShow: false }) }}>
+                <nav className={classnames(
+                    styles.navNav,
+                    "d-flex justify-content-center align-items-center")}>
                     <span className={classnames(
                         styles.spanMenuIconWrapper,
                         "d-flex justify-content-center align-items-center",
                         this.state.isAsideShow ? styles.spanMenuIconWrapperActive : "")}
-                        onClick={e => { e.stopPropagation(); this.setState(state => ({ isAsideShow: !state.isAsideShow })); }}>
+                        onClick={e => {
+                            e.stopPropagation();
+                            this.setState(state => ({ isAsideShow: !state.isAsideShow }));
+                        }}>
                         <i className={classnames(styles.iMenuIcon, "fa-solid fa-bars")}></i>
                     </span>
 
@@ -241,12 +315,12 @@ class MyApp extends react.Component {
                     this.state.isAsideShow ? styles.asideFunctionNavShow : "")}
                     onClick={e => { e.stopPropagation() }}>
                     <ul>
-                        <li onClick={this.newDfa}>
+                        <li onClick={this.onNewDfaClick}>
                             <i className="fa-solid fa-plus"></i>
                             新建DFA
                         </li>
 
-                        <li onClick={this.newTm}>
+                        <li onClick={this.onNewTmClick}>
                             <i className="fa-solid fa-plus"></i>
                             新建TM
                         </li>
@@ -264,17 +338,17 @@ class MyApp extends react.Component {
                                 className={styles.inImportAutomata}
                                 type="file"
                                 accept=".json,application/json"
-                                onChange={this.importAutomataJsonString}/>
+                                onChange={this.onFileInputChange} />
                             导入
                         </li>
                         <li
-                            onClick={this.exportAutomataJsonString}
-                            >
+                            onClick={this.onExportAutomataClick}
+                        >
                             <i className="fa-solid fa-file-arrow-down"></i>
                             保存
                         </li>
                         <li
-                            onClick={this.clearAll}>
+                            onClick={this.onClearAllClick}>
                             <i className="fa-solid fa-xmark"></i>
                             清空
                         </li>
@@ -283,10 +357,42 @@ class MyApp extends react.Component {
 
                 {
                     this.state.isYesNoDialogShow &&
-                    <YesNoDialog
+                    <Dialog
                         title={this.state.yesNoDialogTitle}
-                        message={this.state.yesNoDialogMessage}
-                        closeDialog={this.closeDialog} />
+                        closeDialog={this.closeDialog} >
+                        {this.state.yesNoDialogMessage}
+                    </Dialog>
+                }
+
+                {
+                    this.state.isExampleDialogShow &&
+                    <Dialog
+                        className={exampleDialogStyles.divDialogContentWrapper}
+                        title={"在线示例"}
+                        noButton
+                            closeDialog={()=>this.setState({isExampleDialogShow:false})} >
+                        <div className={classnames(
+                            exampleDialogStyles.divExampleListWrapper,
+                            "d-flex flex-column")}>
+                            {
+                                this.state.exampleList.map((x, i) => (
+                                    <div key={i}
+                                        className={exampleDialogStyles.divSingleExampleWrapper}
+                                        onClick={() => this.onExampleItemClick(x.url)}>
+                                        <i className="fa-solid fa-tag"></i>
+                                        <span className={exampleDialogStyles.spanExampleTitle}>
+                                            {x.title}
+                                        </span>
+                                        <span className={
+                                            exampleDialogStyles[`spanTypeTag${x.type}`]
+                                        }>
+                                            {x.type}
+                                        </span>
+                                    </div>
+                                ))
+                            }
+                        </div>
+                    </Dialog>
                 }
 
                 <Component {...pageProps} ref={this.automataPageRef} />
@@ -295,4 +401,4 @@ class MyApp extends react.Component {
     }
 }
 
-export default MyApp
+export default MyApp;

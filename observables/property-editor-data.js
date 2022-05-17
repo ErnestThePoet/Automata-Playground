@@ -1,5 +1,5 @@
 import { makeAutoObservable } from "mobx";
-import { AUTOMATA_STATE_TYPES } from "./automata-state-types";
+import { AUTOMATA_STATE_TYPES } from "modules/automata-state-types";
 
 export class PropertyEditorData{
     constructor() {

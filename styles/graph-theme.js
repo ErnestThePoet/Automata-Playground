@@ -1,4 +1,4 @@
-import { GRAPH_NODE_GROUPS } from "observables/automata-state-types";
+import { GRAPH_NODE_GROUPS } from "modules/automata-state-types";
 
 const NODE_BORDER_COLOR = "#3D3D3D"
 

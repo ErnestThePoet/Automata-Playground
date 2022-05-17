@@ -1,3 +1,4 @@
+import { AUTOMATA_TYPES } from "modules/automata-types";
 
 const AUTOMATA_TYPE_TOKENS = {
     DFA: "AP_DFA",
@@ -64,9 +65,9 @@ export function parseAutomataJson(jsonString, alertData){
 export function getAutomataType(automataData) {
     switch (automataData.automataType) {
         case AUTOMATA_TYPE_TOKENS.DFA:
-            return "DFA";
+            return AUTOMATA_TYPES.DFA;
         case AUTOMATA_TYPE_TOKENS.TM:
-            return "TM";
+            return AUTOMATA_TYPES.TM;
         default:
             return "";
     }

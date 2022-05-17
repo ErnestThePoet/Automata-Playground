@@ -1,0 +1,12 @@
+[
+    {
+        "title":"接受0n1n的图灵机",
+        "url":"/examples/tm-0n1n.json",
+        "type":"TM"
+    },
+    {
+        "title": "输入00永不停机的图灵机",
+        "url": "/examples/never-stop.json",
+        "type":"TM"
+    }
+]

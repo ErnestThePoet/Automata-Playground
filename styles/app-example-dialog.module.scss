@@ -1,0 +1,53 @@
+@import "theme";
+@import "layout-config";
+
+.divDialogContentWrapper{
+    width:fit-content;
+}
+
+.divExampleListWrapper{
+    max-height: $example-dialog-example-wrapper-max-height;
+    overflow-y: auto;
+}
+
+.divSingleExampleWrapper{
+    background-color: $toolbar-button-background-color;
+
+    padding: 10px;
+    
+    font-size: 15px;
+
+    border-radius: 5px;
+
+    transition-duration: 100ms;
+
+    cursor: pointer;
+
+    &:hover{
+        background-color: $toolbar-button-hover-background-color;
+    }
+
+    &:active{
+        background-color: $toolbar-button-active-background-color;
+    }
+}
+
+.spanExampleTitle{
+    margin: 0 10px;
+}
+
+.spanTypeTag{
+    font-size: 13px;
+    padding: 2px 5px;
+    border-radius: 5px;
+}
+
+.spanTypeTagDFA{
+    @extend .spanTypeTag;
+    background-color: $example-tag-background-color-dfa;
+}
+
+.spanTypeTagTM {
+    @extend .spanTypeTag;
+    background-color: $example-tag-background-color-tm;
+}

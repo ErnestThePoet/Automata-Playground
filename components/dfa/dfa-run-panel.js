@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 
 import { APP_STATES } from "observables/app-state";
-import { AUTOMATA_STATE_TYPES } from "observables/automata-state-types";
+import { AUTOMATA_STATE_TYPES } from "modules/automata-state-types";
 
 import { START_NODE_BKG_COLOR,NORMAL_NODE_BKG_COLOR,FINAL_NODE_BKG_COLOR } from "styles/graph-theme";
 
