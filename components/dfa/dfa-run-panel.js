@@ -55,6 +55,7 @@ export default observer(props => {
     };
 
     const onRunStringInput = e => {
+        props.dfaInstance.runExit();
         props.dfaInstance.setRunString(e.target.value);
         props.dfaInstance.initRun();
     };

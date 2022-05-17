@@ -69,6 +69,7 @@ export default observer(props => {
     };
 
     const onRunStringInput = e => {
+        props.tmInstance.runExit();
         props.tmInstance.setRunString(e.target.value);
         props.tmInstance.initRun();
     };

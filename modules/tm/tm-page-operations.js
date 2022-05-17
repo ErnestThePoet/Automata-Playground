@@ -42,13 +42,13 @@ export function handleGraphClick(
                         i
                     );
                 }
+                
+                pageAppState.changeAppState(APP_STATES.EDIT_TRANSITION);
 
                 checkInputValidity(pageAppState, pagePropertyEditorData, pageTmInstance);
 
                 pagePropertyEditorData.setPropertyEditorPosition(
                     e.event.center.y, e.event.center.x, false);
-                
-                pageAppState.changeAppState(APP_STATES.EDIT_TRANSITION);
             }
             break;
 
@@ -120,12 +120,12 @@ export function handleGraphClick(
                     );
                 }
 
+                pageAppState.changeAppState(APP_STATES.EDIT_TRANSITION);
+
                 checkInputValidity(pageAppState, pagePropertyEditorData, pageTmInstance);
 
                 pagePropertyEditorData.setPropertyEditorPosition(
                     e.event.center.y, e.event.center.x, false);
-                
-                pageAppState.changeAppState(APP_STATES.EDIT_TRANSITION);
             }
             
         case APP_STATES.RUN_AUTOMATA:

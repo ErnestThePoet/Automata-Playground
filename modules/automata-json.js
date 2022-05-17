@@ -6,8 +6,6 @@ const AUTOMATA_TYPE_TOKENS = {
 };
 
 const currentVersion = 1;
-const minDfaAcceptableVersion = 1;
-const maxDfaAcceptableVersion = 1;
 
 export function generateDfaJsonString(dfaInstance) {
     return JSON.stringify({
@@ -53,8 +51,7 @@ export function parseAutomataJson(jsonString, alertData){
         return null;
     }
 
-    if (automataData.version < minDfaAcceptableVersion
-        || automataData.version > maxDfaAcceptableVersion) {
+    if (automataData.version > currentVersion) {
         alertData.showAlertAnimated("文件版本不兼容");
         return null;
     }

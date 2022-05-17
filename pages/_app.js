@@ -20,6 +20,7 @@ import "@fortawesome/fontawesome-free/css/fontawesome.min.css";
 import "@fortawesome/fontawesome-free/css/solid.min.css";
 
 const DIALOG_AFFAIRS = {
+    NOTHING:-1,
     CONFIRM_NEW_DFA: 0,
     CONFIRM_NEW_TM: 1,
     CONFIRM_LOAD_EXAMPLE: 2,
@@ -252,6 +253,28 @@ class MyApp extends react.Component {
         });
     };
 
+    onAboutClick = () => {
+        this.hideAside();
+        this.data.dialogAffair = DIALOG_AFFAIRS.NOTHING;
+        this.setState({
+            yesNoDialogTitle: "关于",
+            yesNoDialogMessage: (
+                <div>
+                    <div style={{ textAlign: "center", marginBottom: 7 }}>
+                        HIT Automata Playground
+                    </div>
+                    Author:
+                    <br />
+                    哈尔滨工业大学 120L021615 崔子健
+                    <br />
+                    <div style={{ textAlign: "center", marginTop: 7 }}>
+                        May 2022, Ernest Cui
+                    </div>
+                </div>),
+            isYesNoDialogShow: true
+        });
+    };
+
     ///////////////////////////////// Sub-handlers /////////////////////////////////
     onExampleItemClick = url => {
         this.data.exampleJsonUrl = url;
@@ -351,6 +374,11 @@ class MyApp extends react.Component {
                             onClick={this.onClearAllClick}>
                             <i className="fa-solid fa-xmark"></i>
                             清空
+                        </li>
+                        <li
+                            onClick={this.onAboutClick}>
+                            <i className="fa-solid fa-circle-info"></i>
+                            关于
                         </li>
                     </ul>
                 </aside>

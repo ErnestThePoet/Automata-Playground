@@ -1,12 +1,32 @@
 [
     {
+        "title": "接受偶数个0和偶数个1的DFA",
+        "url": "/examples/dfa-even-0-1.json",
+        "type": "DFA"
+    },
+    {
+        "title": "接受包含01子串的DFA",
+        "url": "/examples/dfa-has-01.json",
+        "type": "DFA"
+    },
+    {
+        "title": "接受以01开头或结尾的DFA",
+        "url": "/examples/dfa-start-end-01.json",
+        "type": "DFA"
+    },
+    {
         "title":"接受0n1n的图灵机",
         "url":"/examples/tm-0n1n.json",
         "type":"TM"
     },
     {
-        "title": "输入00永不停机的图灵机",
-        "url": "/examples/never-stop.json",
+        "title": "接受anbncn的图灵机",
+        "url": "/examples/tm-anbncn.json",
         "type":"TM"
+    },
+    {
+        "title": "计算整数真减法的图灵机",
+        "url": "/examples/tm-sub.json",
+        "type": "TM"
     }
 ]
