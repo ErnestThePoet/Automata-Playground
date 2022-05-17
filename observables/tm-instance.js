@@ -4,11 +4,13 @@ import {
     toGraphNodeGroup
 } from "observables/automata-state-types";
 
-function getLabelFromTransitionChars(chars) {
-    return chars.join(",");
+export const TM_MAX_RUN_STEP_COUNT = 5000;
+
+function getLabelFromTransitionMoves(moves) {
+    return moves.map(x=>`${x.char}/${x.replace},${x.move==='L'?'←':'→'}`).join(" ");
 }
 
-export class DfaInstance{
+export class TmInstance{
     constructor() {
         makeAutoObservable(this, {
             getStateNameById: false,
@@ -16,7 +18,8 @@ export class DfaInstance{
             getEdgeId: false,
             getTransitionCharSeqById:false,
             isStateNameUnique: false,
-            isTransitionCharSeqUnique:false
+            isTransitionCharSeqUnique: false,
+            isTransitionMoveSeqValid:false
         });
     }
 
@@ -37,7 +40,11 @@ export class DfaInstance{
             type:Number, 
             transitions:Array<{
                 toId:Number, 
-                chars:Array<String>
+                moves:Array<{
+                    char:String,
+                    replace:String,
+                    move:String,"L"|"R"
+                }>
             }>
         }
     */
@@ -68,19 +75,34 @@ export class DfaInstance{
     graphEdges = [];
 
     ///// Run automata data
+    // original run string not modified by the TM
+    origRunString = "";
     runString = "";
     nextRunStringCharIndex = 0;
     runStateSequence = []; // Array<State>
     isRunningStuck = false;
+    currentRunStepCount = 0;
     ///////////////////////////////// ComputedFn /////////////////////////////////
     // requirements: name(String)
     isStateNameUnique(name) {
         return this.states.find(x => x.name === name) === undefined;
     }
 
+    isTransitionMoveSeqValid(moveSeq) {
+        return moveSeq.toUpperCase().split("").find(x => x !== "L" && x !== "R") !== undefined;
+    }
+
     // requirements: id(String) must be valid; charSeq(String) length>0
     // return [isUnique, firstDuplicatedChar]
     isTransitionCharSeqUnique(id, charSeq) {
+        // search for duplications inside
+        for (const i of charSeq) {
+            if (charSeq.reduce((p, x) => p + (x === i ? 1 : 0), 0) != 1) {
+                return [false, i];
+            }
+        }
+
+        // search for duplications from all transitions from the from state
         const targetEdge = this.graphEdges.find(x => x.id === id);
         const fromState = this.states.find(x => x.id === targetEdge.from);
 
@@ -91,7 +113,7 @@ export class DfaInstance{
             }
 
             for (const j of charSeq) {
-                if (i.chars.includes(j)) {
+                if (i.moves.find(x=>x.char===j)) {
                     return [false, j];
                 }
             }
@@ -119,15 +141,20 @@ export class DfaInstance{
     }
 
     // requirements: id(String) must be valid
+    // returns [charSeq, replaceSeq, moveSeq]
     getTransitionCharSeqById(id) {
         const targetGraphEdge = this.graphEdges.find(x => x.id === id);
         if (!targetGraphEdge) {
-            return "";
+            return ["","",""];
         }
         const targetTransition =
             this.states.find(x => x.id === targetGraphEdge.from)
                 .transitions.find(x => x.toId === targetGraphEdge.to);
-        return targetTransition ? targetTransition.chars.join("") : "";
+        return targetTransition
+            ? [targetTransition.moves.map(x => x.char).join(""),
+                targetTransition.moves.map(x => x.replace).join(""),
+                targetTransition.moves.map(x => x.move).join("")]
+            : ["", "", ""];
     }
 
     ///////////////////////////////// Computed /////////////////////////////////
@@ -144,6 +171,10 @@ export class DfaInstance{
         return this.states.length === 0;
     }
 
+    get isStepLimitExceeded() {
+        return this.currentRunStepCount > TM_MAX_RUN_STEP_COUNT;
+    }
+
     ///////////////////////////////// Action /////////////////////////////////
     ///// Run automata functions
     setGraphNodeGroup(state,isCurrent) {
@@ -152,6 +183,7 @@ export class DfaInstance{
     }
     // requirements: runString(String) cannot be empty
     setRunString(runString) {
+        this.origRunString = runString;
         this.runString = runString;
     }
     
@@ -159,13 +191,14 @@ export class DfaInstance{
     // must be called before runSingleStep or runToEnd
     initRun() {
         if (this.runString === "") {
-            this.setRunString("001");
+            this.setRunString("aba");
         }
         // set state sequence to include only start state
         this.nextRunStringCharIndex = 0;
         this.runStateSequence = [this.states.find(x => x.type === AUTOMATA_STATE_TYPES.START)];
         this.setGraphNodeGroup(this.currentRunState, true);
         this.isRunningStuck = false;
+        this.currentRunStepCount = 0;
     }
 
     runExit() {
@@ -173,25 +206,50 @@ export class DfaInstance{
     }
 
     runSingleStep() {
-        if (this.nextRunStringCharIndex > this.runString.length - 1) {
+        if (this.isRunningStuck) {
             return;
         }
 
-        if (this.isRunningStuck) {
+        this.currentRunStepCount++;
+        if (this.isStepLimitExceeded) {
+            // restore original run string
+            this.runString = this.origRunString;
             return;
         }
 
         let isRunningStuck = true;
 
         for (const i of this.currentRunState.transitions) {
-            if (i.chars.includes(this.runString[this.nextRunStringCharIndex])) {
-                this.setGraphNodeGroup(this.currentRunState, false);
-                this.runStateSequence.push(this.states.find(x => x.id === i.toId));
-                this.setGraphNodeGroup(this.currentRunState, true);
-                this.nextRunStringCharIndex++;
+            for (const j of i.moves) {
+                if (j.char===this.runString[this.nextRunStringCharIndex]) {
+                    this.setGraphNodeGroup(this.currentRunState, false);
+                    this.runStateSequence.push(this.states.find(x => x.id === i.toId));
+                    this.setGraphNodeGroup(this.currentRunState, true);
+                    this.runString[this.nextRunStringCharIndex] = j.replace;
 
-                isRunningStuck = false;
-                break;
+                    if (j.move === "L") {
+                        this.nextRunStringCharIndex--;
+                    }
+                    else {
+                        this.nextRunStringCharIndex++;
+                    }
+
+                    isRunningStuck = false;
+
+                    const runStringOrigLength = this.runString.length;
+
+                    // pad Bs
+                    if (this.nextRunStringCharIndex > runStringOrigLength - 1) {
+                        this.runString +=
+                            "B".repeat(this.nextRunStringCharIndex - runStringOrigLength + 1);
+                    }
+                    else if (this.nextRunStringCharIndex < 0) {
+                        this.runString = "B".repeat(-this.nextRunStringCharIndex) + this.runString;
+                        this.nextRunStringCharIndex = 0;
+                    }
+
+                    break;
+                }
             }
         }
 
@@ -199,8 +257,8 @@ export class DfaInstance{
     }
 
     runToEnd() {
-        for (let i = this.nextRunStringCharIndex; i < this.runString.length; i++){
-            if (this.isRunningStuck) {
+        while (this.currentRunState.tyle !== AUTOMATA_STATE_TYPES.FINAL) {
+            if (this.isRunningStuck || this.isStepLimitExceeded) {
                 break;
             }
             this.runSingleStep();
@@ -208,15 +266,20 @@ export class DfaInstance{
     }
 
     runSingleBack() {
-        if (this.nextRunStringCharIndex === 0) {
-            return;
-        }
-
         this.setGraphNodeGroup(this.currentRunState, false);
         this.runStateSequence.pop();
         this.setGraphNodeGroup(this.currentRunState, true);
         this.isRunningStuck = false;
-        this.nextRunStringCharIndex--;
+
+        if (this.currentRunState.move === "L") {
+            this.nextRunStringCharIndex++;
+        }
+        else {
+            this.nextRunStringCharIndex--;
+        }
+
+        // here we do not undo runString padding modification.
+        this.runString[this.nextRunStringCharIndex] = this.currentRunState.char;
     }
 
     runReset() {
@@ -224,11 +287,13 @@ export class DfaInstance{
         this.nextRunStringCharIndex = 0;
         this.runStateSequence = [this.states.find(x => x.type === AUTOMATA_STATE_TYPES.START)];
         this.setGraphNodeGroup(this.currentRunState, true);
+        this.runString = this.origRunString;
         this.isRunningStuck = false;
+        this.currentRunStepCount = 0;
     }
 
-    ///// Load DFA from file read
-    loadDfaData(nextStateId, nextEdgeId, states, graphNodes, graphEdges) {
+    ///// Load TM from file read
+    loadTmData(nextStateId, nextEdgeId, states, graphNodes, graphEdges) {
         this.nextStateId = nextStateId;
         this.nextEdgeId = nextEdgeId;
         this.states = states;
@@ -271,44 +336,45 @@ export class DfaInstance{
 
     // requirements:
     // fromId(Number) and toId(Number) have to be valid;
-    // charSeq(String) length>0;
-    // each char in charSeq must be unique in all transitions starting from fromId.
-    // inside charSeq, chars does not need to be unique; 
-    // only new transitions will be added.
-    // if a transition from From to To already exists, charSeq can also contain duplications.
-    addTransition(fromId, toId, charSeq) {
-        const charsOrig = charSeq.split("");
-        const chars = [];
-
-        // remove duplications in charOrig
-        for (const i of charsOrig) {
-            if (!chars.includes(i)) {
-                chars.push(i);
-            }
-        }
-
+    // charSeq, replaceSeq, moveSeq(All String) length>0 and all equal;
+    // each char in charSeq must be unique in all transitions starting from fromId and inside charSeq;
+    // if a transition from From to To already exists, this will be merged;
+    // each char in moveSeq can only be "L" or "R".
+    addTransition(fromId, toId, charSeq,replaceSeq, moveSeq) {
         const fromTransitions = this.states.find(x => x.id === fromId).transitions;
         const fromTransition = fromTransitions.find(x => x.toId === toId);
-        // if a transition to To state already exists, then simply merge the chars
+        // if a transition to To state already exists, then simply merge the moves
         if (fromTransition) {
-            for (const i of chars) {
-                if (!fromTransition.chars.includes(i)) {
-                    fromTransition.chars.push(i);
-                }
+            for (let i = 0; i < charSeq.length; i++){
+                fromTransition.moves.push({
+                    char: charSeq[i],
+                    replace: replaceSeq[i],
+                    move:moveSeq[i]
+                });
             }
 
             this.graphEdges.find(x => x.from === fromId && x.to === toId).label =
-                getLabelFromTransitionChars(fromTransition.chars);
+                getLabelFromTransitionMoves(fromTransition.moves);
         }
         // otherwise add a new transition
         else {
-            fromTransitions.push({ toId, chars });
+            const newMoves = [];
+
+            for (let i = 0; i < charSeq.length; i++) {
+                newMoves.push({
+                    char: charSeq[i],
+                    replace: replaceSeq[i],
+                    move: moveSeq[i]
+                });
+            }
+
+            fromTransitions.push({ toId, moves: newMoves });
 
             const newEdge = {
                 id: this.nextEdgeId.toString(),
                 from: fromId,
                 to: toId,
-                label: getLabelFromTransitionChars(chars)
+                label: getLabelFromTransitionMoves(newMoves)
             };
 
             // if there is a reverse transition, then add a curve to this edge
@@ -358,26 +424,27 @@ export class DfaInstance{
     // we did not supply an id when adding edges,
     // so we will get the id that vis.js internally provided in click event.
     // requirements: id(String) has to be valid; 
-    // newCharSeq(String) length>0;
-    // each char in charSeq must be unique in all transitions starting from the start state.
-    editTransition(id, newCharSeq) {
-        const newCharsOrig = newCharSeq.split("");
-        const newChars = [];
-
-        // remove duplications
-        for (const i of newCharsOrig) {
-            if (!newChars.includes(i)) {
-                newChars.push(i);
-            }
-        }
-
+    // newCharSeq, newReplaceSeq, newMoveSeq(All String) length>0; length all equal;
+    // each char in newCharSeq must be unique in all transitions starting from the start state and inside.
+    // each char in newMoveSeq can only be "L" or "R".
+    editTransition(id, newCharSeq, newReplaceSeq, newMoveSeq) {
         const selectedGraphEdge = this.graphEdges.find(x => x.id === id);
 
-        selectedGraphEdge.label = getLabelFromTransitionChars(newChars);
+        const newMoves = [];
+
+        for (let i = 0; i < charSeq.length; i++) {
+            newMoves.push({
+                char: charSeq[i],
+                replace: replaceSeq[i],
+                move: moveSeq[i]
+            });
+        }
+
+        selectedGraphEdge.label = getLabelFromTransitionMoves(newMoves);
 
         this.states.find(x => x.id === selectedGraphEdge.from)
             .transitions.find(x => x.toId === selectedGraphEdge.to)
-            .chars = newChars;
+            .moves = newMoves;
         
         this.reactivityCounter++;
     }

@@ -1,18 +1,18 @@
 @import "../theme";
 @import "../layout-config";
 
-.divRunPanelWrapper{
+.divRunPanelWrapper {
     width: fit-content;
     z-index: $z-index-toolbar;
 }
 
-.divRunControlsWrapper{
+.divRunControlsWrapper {
     font-size: 15px;
 
     user-select: none;
 }
 
-.iRunControl{
+.iRunControl {
     width: 10vw;
     text-align: center;
     padding: 8px;
@@ -36,7 +36,7 @@
     }
 }
 
-.iRunControlClose{
+.iRunControlClose {
     @extend .iRunControl;
 
     &:hover {
@@ -48,7 +48,7 @@
     }
 }
 
-.divLowerPartWrapper{
+.divLowerPartWrapper {
     margin-top: 10px;
     padding: 5px;
 
@@ -57,18 +57,18 @@
     box-shadow: 1px 1px 5px -2px rgba(0, 0, 0, 0.50);
 }
 
-.spanLowerLeftPartWrapper{
+.spanLowerLeftPartWrapper {
     width: 60vw;
     font-size: 15px;
     font-family: $run-string-font-family;
 }
 
-.divStringWrapper{
+.divStringWrapper {
     width: 100%;
     padding: 2px 6px;
 }
 
-.spanStringChar{
+.spanStringChar {
     color: $run-panel-string-char-color;
 }
 
@@ -76,13 +76,13 @@
     color: $run-panel-string-char-consumed-color;
 }
 
-.divStringInputWrapper{
+.divStringInputWrapper {
     width: 100%;
 }
 
-.inString{
+.inString {
     width: 100%;
-    
+
     padding: 2px 5px;
 
     border: 1px solid $property-editor-input-background-color;
@@ -90,22 +90,22 @@
     outline: 0;
 }
 
-.spanLowerRightPartWrapper{
+.spanLowerRightPartWrapper {
     margin-left: 5px;
     padding: 0 5px;
     user-select: none;
 }
 
-.spanCurrentStateLabel{
+.spanCurrentStateLabel {
     font-size: 13px;
 }
 
-.spanCurrentStateWrapper{
+.spanCurrentStateWrapper {
     width: 3em;
     height: 3em;
 }
 
-.spanCurrentState{
+.spanCurrentState {
     width: 2.5em;
     height: 2.5em;
     line-height: 2.5em;

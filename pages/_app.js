@@ -62,6 +62,10 @@ class MyApp extends react.Component {
         });
     };
 
+    onOnlineExamplesClick = () => {
+        
+    };
+
     onImportAutomataClick = () => {
         if (this.automataPageRef.current.loadAutomataJsonString("", true)) {
             document.getElementById("in-import-automata").click();
@@ -153,6 +157,13 @@ class MyApp extends react.Component {
                                 新建TM
                             </li>
                         </Link>
+
+                        <li
+                            onClick={this.onOnlineExamplesClick}
+                        >
+                            <i className="fa-solid fa-book"></i>
+                            在线示例
+                        </li>
 
                         <li onClick={this.onImportAutomataClick}>
                             <i className="fa-solid fa-file-import"></i>

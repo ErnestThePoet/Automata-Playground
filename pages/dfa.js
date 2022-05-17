@@ -7,11 +7,11 @@ import { AppState,APP_STATES } from "observables/app-state";
 import { DfaInstance } from "observables/dfa-instance";
 import { PropertyEditorData } from "observables/property-editor-data";
 import { AlertData } from "observables/alert-data";
+import { adjustPropertyEditorPosition } from "modules/utilities";
 import {
-    adjustPropertyEditorPosition,
     loadDfaJsonString,
     generateDfaJsonString
-} from "modules/utilities";
+} from "modules/automata-json";
 
 import DfaPropertyEditor from "components/dfa/dfa-property-editor";
 import AutomataToolbar from "components/automata-toolbar";
@@ -20,7 +20,7 @@ import DfaRunPanel from "components/dfa/dfa-run-panel";
 import { handleGraphClick,handleGraphDragEnd } from "modules/dfa/dfa-page-operations";
 import { initGraph, updateGraph } from "modules/graph-operations";
 
-import styles from "styles/dfa.module.scss";
+import styles from "styles/dfa-tm.module.scss";
 import appStyles from "styles/app.module.scss";
 
 export default class DfaPage extends react.Component {

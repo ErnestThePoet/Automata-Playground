@@ -32,6 +32,11 @@ export class PropertyEditorData{
     isInvalidInputWarningShow = false;
     invalidInputWarningText = "";
 
+    get isEditorInputTextsLengthEqual() {
+        return this.editorInputTexts[0].length === this.editorInputTexts[1].length
+            && this.editorInputTexts[1].length === this.editorInputTexts[2].length;
+    }
+
     setPropertyEditorPosition(top, left, isAdjusted) {
         this.propertyEditorTop = top;
         this.propertyEditorLeft = left;

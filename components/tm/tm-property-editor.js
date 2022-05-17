@@ -2,52 +2,81 @@ import { observer } from "mobx-react-lite";
 
 import classnames from "classnames";
 
-import styles from "styles/dfa/dfa-property-editor.module.scss";
+import styles from "styles/tm/tm-property-editor.module.scss";
 import { AUTOMATA_STATE_TYPES } from "observables/automata-state-types";
 import { APP_STATES } from "observables/app-state";
 
 import { adjustPropertyEditorPosition, isMobileBrowser } from "modules/utilities";
 
-// props requires appState, dfaInstance, propertyEditorData
+export const checkInputValidity = (appState,propertyEditorData,tmInstance) => {
+    switch (appState.currentState) {
+        case APP_STATES.EDIT_STATE:
+            if (propertyEditorData.editorInputTexts[0].length === 0) {
+                propertyEditorData.showInvalidInputWarning("状态名不能为空");
+                return;
+            }
+
+            if (!tmInstance.isStateNameUnique(
+                propertyEditorData.editorInputTexts[0])) {
+                propertyEditorData.showInvalidInputWarning("状态名已经存在");
+                return;
+            }
+
+            propertyEditorData.hideInvalidInputWarning();
+
+            break;
+
+        case APP_STATES.EDIT_TRANSITION:
+            if (propertyEditorData.editorInputTexts[0].length === 0) {
+                propertyEditorData.showInvalidInputWarning("输入字符列表不能为空");
+                return;
+            }
+
+            const isCharSeqUnique = tmInstance.isTransitionCharSeqUnique(
+                propertyEditorData.selectedGraphEdgeId,
+                propertyEditorData.editorInputTexts[0]
+            );
+
+            if (!isCharSeqUnique[0]) {
+                propertyEditorData.showInvalidInputWarning(
+                    `已经有字符${isCharSeqUnique[1]}的转移`);
+                return;
+            }
+
+            if (!propertyEditorData.isEditorInputTextsLengthEqual) {
+                propertyEditorData.showInvalidInputWarning(
+                    `输入数据长度不相等`);
+                return;
+            }
+
+            if (!tmInstance.isTransitionMoveSeqValid(
+                propertyEditorData.editorInputTexts[2])) {
+                propertyEditorData.showInvalidInputWarning(
+                    `移动序列只能包含字符"LRlr"`);
+                return;
+            }
+
+            propertyEditorData.hideInvalidInputWarning();
+
+            break;
+    }
+};
+
+// props requires appState, tmInstance, propertyEditorData
 export default observer(props => {
     const onPropertyInput = e => {
         props.propertyEditorData.setEditorInputText(e.target.value, 0);
-        switch (props.appState.currentState) {
-            case APP_STATES.EDIT_STATE:
-                if (e.target.value.length === 0) {
-                    props.propertyEditorData.showInvalidInputWarning("状态名不能为空");
-                    return;
-                }
+        checkInputValidity(props.appState,props.propertyEditorData,props.tmInstance);
+    };
 
-                if (!props.dfaInstance.isStateNameUnique(e.target.value)) {
-                    props.propertyEditorData.showInvalidInputWarning("状态名已经存在");
-                    return;
-                }
+    const onReplaceSeqInput = e => {
+        props.propertyEditorData.setEditorInputText(e.target.value, 1);
+        checkInputValidity(props.appState, props.propertyEditorData, props.tmInstance);
+    };
 
-                props.propertyEditorData.hideInvalidInputWarning();
-
-                break;
-            
-            case APP_STATES.EDIT_TRANSITION:
-                if (e.target.value.length === 0) {
-                    props.propertyEditorData.showInvalidInputWarning("消耗的字符列表不能为空");
-                    return;
-                }
-
-                const isCharSeqUnique = props.dfaInstance.isTransitionCharSeqUnique(
-                    props.propertyEditorData.selectedGraphEdgeId, e.target.value
-                );
-
-                if (!isCharSeqUnique[0]) {
-                    props.propertyEditorData.showInvalidInputWarning(
-                        `已经有字符${isCharSeqUnique[1]}的转移`);
-                    return;
-                }
-
-                props.propertyEditorData.hideInvalidInputWarning();
-
-                break;
-        }
+    const onMoveSeqInput = e => {
+        props.propertyEditorData.setEditorInputText(e.target.value, 2);
+        checkInputValidity(props.appState, props.propertyEditorData, props.tmInstance);
     };
 
     const onStateTypeChange = type => {
@@ -61,7 +90,7 @@ export default observer(props => {
 
         switch (props.appState.currentState) {
             case APP_STATES.EDIT_STATE:
-                props.dfaInstance.editState(
+                props.tmInstance.editState(
                     props.propertyEditorData.selectedGraphNodeId,
                     props.propertyEditorData.editorInputTexts[0],
                     props.propertyEditorData.selectedStateType,
@@ -72,9 +101,11 @@ export default observer(props => {
                 break;
 
             case APP_STATES.EDIT_TRANSITION:
-                props.dfaInstance.editTransition(
+                props.tmInstance.editTransition(
                     props.propertyEditorData.selectedGraphEdgeId,
-                    props.propertyEditorData.editorInputTexts[0]
+                    props.propertyEditorData.editorInputTexts[0].toUpperCase(),
+                    props.propertyEditorData.editorInputTexts[1].toUpperCase(),
+                    props.propertyEditorData.editorInputTexts[2].toUpperCase(),
                 );
 
                 break;
@@ -141,7 +172,7 @@ export default observer(props => {
                         ? "block"
                         : "none"
                 }}>
-                多个消耗字符请连续输入, 如01
+                多个输入字符请连续输入, 如01
             </label>
             
             <input
@@ -150,6 +181,28 @@ export default observer(props => {
                 type="text"
                 value={props.propertyEditorData.editorInputTexts[0]}
                 onInput={onPropertyInput} />
+            
+            {/* replaceSeq input*/}
+            {
+                props.appState.currentState === APP_STATES.EDIT_TRANSITION &&
+                <input
+                className={styles.inPropertyInput}
+                style={props.propertyEditorData.isInvalidInputWarningShow ? { borderColor: "red", color: "red" } : {}}
+                type="text"
+                value={props.propertyEditorData.editorInputTexts[1]}
+                onInput={onReplaceSeqInput} />
+            }
+
+            {/* moveSeq input*/}
+            {
+                props.appState.currentState === APP_STATES.EDIT_TRANSITION &&
+                <input
+                    className={styles.inPropertyInput}
+                    style={props.propertyEditorData.isInvalidInputWarningShow ? { borderColor: "red", color: "red" } : {}}
+                    type="text"
+                    value={props.propertyEditorData.editorInputTexts[2]}
+                    onInput={onMoveSeqInput} />
+            }
             
             <label className={styles.lblInvalidInputInfo}
                 style={{ display: props.propertyEditorData.isInvalidInputWarningShow?"block":"none"}}>

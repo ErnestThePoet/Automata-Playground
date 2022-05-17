@@ -3,21 +3,29 @@ import { observer } from "mobx-react-lite";
 import { APP_STATES } from "observables/app-state";
 import { AUTOMATA_STATE_TYPES } from "observables/automata-state-types";
 
-import { START_NODE_BKG_COLOR,NORMAL_NODE_BKG_COLOR,FINAL_NODE_BKG_COLOR } from "styles/graph-theme";
+import { TM_MAX_RUN_STEP_COUNT } from "observables/tm-instance";
 
-import styles from "styles/dfa/dfa-run-panel.module.scss";
+import { START_NODE_BKG_COLOR, NORMAL_NODE_BKG_COLOR, FINAL_NODE_BKG_COLOR } from "styles/graph-theme";
+
+import styles from "styles/tm/tm-run-panel.module.scss";
 import classnames from "classnames";
 
-// props requires appState, dfaInstance, alertData
+// props requires appState, tmInstance, alertData
 export default observer(props => {
     const onRunSingleStepClick = e => {
         e.stopPropagation();
 
-        props.dfaInstance.runSingleStep();
+        props.tmInstance.runSingleStep();
 
-        if (props.dfaInstance.isRunningStuck) {
+        if (props.tmInstance.isRunningStuck) {
             if (!props.alertData.isAlertShow) {
-                props.alertData.showAlertAnimated("DFA处于卡死状态");
+                props.alertData.showAlertAnimated("图灵机处于卡死状态");
+            }
+        }
+
+        if (props.tmInstance.isStepLimitExceeded) {
+            if (!props.alertData.isAlertShow) {
+                props.alertData.showAlertAnimated(`已超过最大步数限制(${TM_MAX_RUN_STEP_COUNT})`);
             }
         }
     };
@@ -25,11 +33,17 @@ export default observer(props => {
     const onRunToEndClick = e => {
         e.stopPropagation();
 
-        props.dfaInstance.runToEnd();
+        props.tmInstance.runToEnd();
 
-        if (props.dfaInstance.isRunningStuck) {
+        if (props.tmInstance.isRunningStuck) {
             if (!props.alertData.isAlertShow) {
-                props.alertData.showAlertAnimated("DFA处于卡死状态");
+                props.alertData.showAlertAnimated("图灵机处于卡死状态");
+            }
+        }
+
+        if (props.tmInstance.isStepLimitExceeded) {
+            if (!props.alertData.isAlertShow) {
+                props.alertData.showAlertAnimated(`已超过最大步数限制(${TM_MAX_RUN_STEP_COUNT})`);
             }
         }
     };
@@ -37,56 +51,56 @@ export default observer(props => {
     const onRunSingleBackClick = e => {
         e.stopPropagation();
 
-        props.dfaInstance.runSingleBack();
+        props.tmInstance.runSingleBack();
     };
 
     const onRunResetClick = e => {
         e.stopPropagation();
 
-        props.dfaInstance.runReset();
+        props.tmInstance.runReset();
     };
-    
+
     const onCloseClick = e => {
         e.stopPropagation();
 
-        props.dfaInstance.runExit();
+        props.tmInstance.runExit();
 
         props.appState.changeAppState(APP_STATES.DEFAULT);
     };
 
     const onRunStringInput = e => {
-        props.dfaInstance.setRunString(e.target.value);
-        props.dfaInstance.initRun();
+        props.tmInstance.setRunString(e.target.value);
+        props.tmInstance.initRun();
     };
 
     return (
         <div className={classnames(props.className, styles.divRunPanelWrapper)} style={props.style}>
             <div className={classnames(styles.divRunControlsWrapper, "d-flex justify-content-evenly")}>
                 <i className={classnames(styles.iRunControl, "fa-solid fa-forward-step")}
-                onClick={onRunSingleStepClick}></i>
+                    onClick={onRunSingleStepClick}></i>
                 <i className={classnames(styles.iRunControl, "fa-solid fa-forward-fast")}
-                onClick={onRunToEndClick}></i>
+                    onClick={onRunToEndClick}></i>
                 <i className={classnames(styles.iRunControl, "fa-solid fa-backward-step")}
-                onClick={onRunSingleBackClick}></i>
+                    onClick={onRunSingleBackClick}></i>
                 <i className={classnames(styles.iRunControl, "fa-solid fa-arrow-rotate-right")}
-                onClick={onRunResetClick}></i>
+                    onClick={onRunResetClick}></i>
                 <i className={classnames(styles.iRunControlClose, "fa-solid fa-xmark")}
-                onClick={onCloseClick}></i>
+                    onClick={onCloseClick}></i>
             </div>
-            
-            <div className={classnames(styles.divLowerPartWrapper,"d-flex")}>
+
+            <div className={classnames(styles.divLowerPartWrapper, "d-flex")}>
                 <span className={styles.spanLowerLeftPartWrapper}>
                     <div className={classnames(styles.divStringWrapper, "d-flex flex-wrap")}>
-                        {props.dfaInstance.runString.split("").map((x,i) => (
-                            <span key={i} className={i < props.dfaInstance.nextRunStringCharIndex
+                        {props.tmInstance.runString.split("").map((x, i) => (
+                            <span key={i} className={i === props.tmInstance.nextRunStringCharIndex
                                 ? styles.spanStringCharConsumed : styles.spanStringChar}>{x}</span>
                         ))}
                     </div>
 
                     <div className={styles.divStringInputWrapper}>
                         <input className={styles.inString}
-                            value={props.dfaInstance.runString}
-                            onInput={onRunStringInput}/>
+                            value={props.tmInstance.runString}
+                            onInput={onRunStringInput} />
                     </div>
                 </span>
 
@@ -101,27 +115,27 @@ export default observer(props => {
                         "d-flex justify-content-center align-items-center")}>
                         <span className={styles.spanCurrentState}
                             style={{
-                                borderStyle: props.dfaInstance.currentRunState.type === AUTOMATA_STATE_TYPES.START
+                                borderStyle: props.tmInstance.currentRunState.type === AUTOMATA_STATE_TYPES.START
                                     ? "dotted"
-                                    : (props.dfaInstance.currentRunState.type === AUTOMATA_STATE_TYPES.FINAL
+                                    : (props.tmInstance.currentRunState.type === AUTOMATA_STATE_TYPES.FINAL
                                         ? "double"
                                         : "solid"),
-                                borderWidth: props.dfaInstance.currentRunState.type === AUTOMATA_STATE_TYPES.FINAL
+                                borderWidth: props.tmInstance.currentRunState.type === AUTOMATA_STATE_TYPES.FINAL
                                     ? 5
                                     : 2,
-                                backgroundColor: props.dfaInstance.currentRunState.type === AUTOMATA_STATE_TYPES.START
+                                backgroundColor: props.tmInstance.currentRunState.type === AUTOMATA_STATE_TYPES.START
                                     ? START_NODE_BKG_COLOR
-                                    : (props.dfaInstance.currentRunState.type === AUTOMATA_STATE_TYPES.FINAL
+                                    : (props.tmInstance.currentRunState.type === AUTOMATA_STATE_TYPES.FINAL
                                         ? FINAL_NODE_BKG_COLOR
                                         : NORMAL_NODE_BKG_COLOR)
                             }}>
-                            {props.dfaInstance.currentRunState.name}
+                            {props.tmInstance.currentRunState.name}
                         </span>
                     </span>
                 </span>
             </div>
 
-            
+
         </div>
     )
 });
