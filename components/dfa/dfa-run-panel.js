@@ -61,18 +61,23 @@ export default observer(props => {
     };
 
     return (
-        <div className={classnames(props.className, styles.divRunPanelWrapper)} style={props.style}>
-            <div className={classnames(styles.divRunControlsWrapper, "d-flex justify-content-evenly")}>
-                <i className={classnames(styles.iRunControl, "fa-solid fa-forward-step")}
-                onClick={onRunSingleStepClick}></i>
-                <i className={classnames(styles.iRunControl, "fa-solid fa-forward-fast")}
-                onClick={onRunToEndClick}></i>
-                <i className={classnames(styles.iRunControl, "fa-solid fa-backward-step")}
-                onClick={onRunSingleBackClick}></i>
+        <div className={classnames(
+            props.className,
+            styles.divRunPanelWrapper)}
+            style={props.style}>
+            <div className={classnames(
+                styles.divRunControlsWrapper,
+                "d-flex justify-content-evenly")}>
                 <i className={classnames(styles.iRunControl, "fa-solid fa-arrow-rotate-right")}
-                onClick={onRunResetClick}></i>
+                    onClick={onRunResetClick}></i>
+                <i className={classnames(styles.iRunControl, "fa-solid fa-backward-step")}
+                    onClick={onRunSingleBackClick}></i>
+                <i className={classnames(styles.iRunControl, "fa-solid fa-forward-step")}
+                    onClick={onRunSingleStepClick}></i>
+                <i className={classnames(styles.iRunControl, "fa-solid fa-forward-fast")}
+                    onClick={onRunToEndClick}></i>
                 <i className={classnames(styles.iRunControlClose, "fa-solid fa-xmark")}
-                onClick={onCloseClick}></i>
+                    onClick={onCloseClick}></i>
             </div>
             
             <div className={classnames(styles.divLowerPartWrapper,"d-flex")}>
