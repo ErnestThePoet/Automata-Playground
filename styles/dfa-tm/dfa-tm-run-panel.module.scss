@@ -40,11 +40,11 @@
     @extend .iRunControl;
 
     &:hover {
-        background-color: rgb(255, 52, 96);
+        background-color: $toolbar-close-botton-hover-background-color;
     }
 
     &:active {
-        background-color: rgb(255, 0, 55);
+        background-color: $toolbar-close-botton-active-background-color;
     }
 }
 
