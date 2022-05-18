@@ -202,8 +202,10 @@ export class TmInstance{
     // must be called before runSingleStep or runToEnd
     initRun() {
         // it keeps runString unchanged
-        // set state sequence to include only start state
+        // resotre modifiedRunString when user exit RUN_AUTOMATA state and then re-enter
+        this.modifiedRunString = this.runString;
         this.nextRunStringCharIndex = 0;
+        // set state sequence to include only start state
         this.runStateSequence = [this.states.find(x => x.type === AUTOMATA_STATE_TYPES.START)];
         this.runCharMoveSequence = [];
         this.setGraphNodeGroup(this.currentRunState, true);

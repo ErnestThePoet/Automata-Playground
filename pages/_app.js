@@ -405,7 +405,7 @@ class MyApp extends react.Component {
                     this.state.isExampleDialogShow &&
                     <Dialog
                         className={exampleDialogStyles.divDialogContentWrapper}
-                        title={"在线示例"}
+                            title={`在线示例 (${this.state.exampleList.length})`}
                         noButton
                             closeDialog={()=>this.setState({isExampleDialogShow:false})} >
                         <div className={classnames(

@@ -59,6 +59,7 @@
 
 .spanLowerLeftPartWrapper{
     width: 60vw;
+    padding: 0 5px;
     font-size: 15px;
     font-family: $run-string-font-family;
 }
@@ -91,13 +92,13 @@
 }
 
 .spanLowerRightPartWrapper{
-    margin-left: 5px;
     padding: 0 5px;
     user-select: none;
 }
 
 .spanCurrentStateLabel{
-    font-size: 13px;
+    font-size: 12px;
+    line-height: 15px;
 }
 
 .spanCurrentStateWrapper{

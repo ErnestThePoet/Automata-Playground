@@ -1,10 +1,5 @@
 [
     {
-        "title": "接受偶数个0和偶数个1的DFA",
-        "url": "/examples/dfa-even-0-1.json",
-        "type": "DFA"
-    },
-    {
         "title": "接受包含01子串的DFA",
         "url": "/examples/dfa-has-01.json",
         "type": "DFA"
@@ -12,6 +7,31 @@
     {
         "title": "接受以01开头或结尾的DFA",
         "url": "/examples/dfa-start-end-01.json",
+        "type": "DFA"
+    },
+    {
+        "title": "接受包含连续3个0的DFA",
+        "url": "/examples/dfa-3-csc-0.json",
+        "type": "DFA"
+    },
+    {
+        "title": "接受偶数个0和偶数个1的DFA(开始状态也是接受状态)",
+        "url": "/examples/dfa-even-0-1.json",
+        "type": "DFA"
+    },
+    {
+        "title": "每个前缀中01相差最多1(开始状态也是接受状态)",
+        "url": "/examples/dfa-prefix-differ-le-1.json",
+        "type": "DFA"
+    },
+    {
+        "title": "每5个连续符号至少包含2个0(开始状态也是接受状态,密恐慎入)",
+        "url": "/examples/dfa-5-2-0.json",
+        "type": "DFA"
+    },
+    {
+        "title": "逆序二进制数是5的倍数",
+        "url": "/examples/dfa-rev-mul-5.json",
         "type": "DFA"
     },
     {
@@ -25,8 +45,18 @@
         "type":"TM"
     },
     {
+        "title": "接受ωω(ω∈{a,b}+)的图灵机",
+        "url": "/examples/tm-ww.json",
+        "type": "TM"
+    },
+    {
         "title": "计算整数真减法的图灵机",
         "url": "/examples/tm-sub.json",
+        "type": "TM"
+    },
+    {
+        "title": "二进制加1函数",
+        "url": "/examples/tm-plus-1.json",
         "type": "TM"
     }
 ]

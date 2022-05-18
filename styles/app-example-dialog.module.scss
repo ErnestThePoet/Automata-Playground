@@ -1,21 +1,51 @@
 @import "theme";
 @import "layout-config";
 
-.divDialogContentWrapper{
-    width:fit-content;
+.divDialogContentWrapper {
+    width: fit-content;
+    max-width: $dialog-width;
 }
 
-.divExampleListWrapper{
+.divExampleListWrapper {
     max-height: $example-dialog-example-wrapper-max-height;
+    // overcome the padding of .divDialogBodyWrapper set in dialog.module.scss
+    margin: -10px;
+    margin-bottom: 0;
+    padding: 8px;
     overflow-y: auto;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+        height: 1px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        border-radius: 3px;
+        background-color: $example-scroll-color;
+        box-shadow: 0 2px 3px 0px #9B9B9B;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: $example-scroll-hover-color;
+    }
+
+    &::-webkit-scrollbar-thumb:active {
+        background-color: $example-scroll-active-color;
+    }
+
+    &::-webkit-scrollbar-track {
+        background-color: $example-scroll-track-color;
+        border-radius: 3px;
+    }
 }
 
-.divSingleExampleWrapper{
+.divSingleExampleWrapper {
     background-color: $toolbar-button-background-color;
 
-    padding: 10px;
-    
-    font-size: 15px;
+    padding: 0.5em;
+    padding-right: 0.25em;
+
+    font-size: 14px;
 
     border-radius: 5px;
 
@@ -23,26 +53,26 @@
 
     cursor: pointer;
 
-    &:hover{
+    &:hover {
         background-color: $toolbar-button-hover-background-color;
     }
 
-    &:active{
+    &:active {
         background-color: $toolbar-button-active-background-color;
     }
 }
 
-.spanExampleTitle{
-    margin: 0 10px;
+.spanExampleTitle {
+    margin: 0 8px;
 }
 
-.spanTypeTag{
+.spanTypeTag {
     font-size: 13px;
     padding: 2px 5px;
     border-radius: 5px;
 }
 
-.spanTypeTagDFA{
+.spanTypeTagDFA {
     @extend .spanTypeTag;
     background-color: $example-tag-background-color-dfa;
 }

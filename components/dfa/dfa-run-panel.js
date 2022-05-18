@@ -81,7 +81,9 @@ export default observer(props => {
             </div>
             
             <div className={classnames(styles.divLowerPartWrapper,"d-flex")}>
-                <span className={styles.spanLowerLeftPartWrapper}>
+                <span className={classnames(
+                    styles.spanLowerLeftPartWrapper,
+                    "d-flex flex-column justify-content-center")}>
                     <div className={classnames(styles.divStringWrapper, "d-flex flex-wrap")}>
                         {props.dfaInstance.runString.split("").map((x,i) => (
                             <span key={i} className={i < props.dfaInstance.nextRunStringCharIndex
@@ -99,6 +101,10 @@ export default observer(props => {
                 <span className={classnames(
                     styles.spanLowerRightPartWrapper,
                     "d-flex flex-column justify-content-center align-items-center")}>
+                    <span className={styles.spanCurrentStateLabel}>
+                        {props.dfaInstance.runStateSequence.length - 1}步
+                    </span>
+                    
                     <span className={styles.spanCurrentStateLabel}>当前状态</span>
 
                     {/* occupies a fixed size and eliminishes size vibration caused by border size change
@@ -124,6 +130,7 @@ export default observer(props => {
                             {props.dfaInstance.currentRunState.name}
                         </span>
                     </span>
+
                 </span>
             </div>
 
