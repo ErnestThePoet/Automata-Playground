@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 
 import classnames from "classnames";
@@ -65,6 +66,11 @@ export const checkInputValidity = (appState,propertyEditorData,tmInstance) => {
 
 // props requires appState, tmInstance, propertyEditorData
 export default observer(props => {
+    // select first input text on first render
+    useEffect(() => {
+        document.getElementById("in-property-editor-first-input").select();
+    }, []);
+
     const onPropertyInput = e => {
         props.propertyEditorData.setEditorInputText(e.target.value, 0);
         checkInputValidity(props.appState,props.propertyEditorData,props.tmInstance);
@@ -177,6 +183,7 @@ export default observer(props => {
             </label>
             
             <input
+                id="in-property-editor-first-input"
                 className={props.appState.currentState === APP_STATES.EDIT_STATE
                     ? styles.inPropertyInput
                     : tmStyles.inPropertyInput}

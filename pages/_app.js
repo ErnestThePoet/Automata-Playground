@@ -5,7 +5,8 @@ import Router from "next/router";
 
 import { parseAutomataJson, getAutomataType } from "modules/automata-json";
 
-import { AUTOMATA_TYPES } from "modules/automata-types";
+import { AUTOMATA_TYPES, getAutomataTypeNameByPathname } from "modules/automata-types";
+import { PAGE_PATHS, BASE_PATH } from "modules/router-paths";
 
 import Dialog from "components/dialog";
 
@@ -28,17 +29,12 @@ const DIALOG_AFFAIRS = {
     CONFIRM_CLEAR_ALL: 4
 };
 
-const PAGE_PATHS = {
-    DFA_PAGE: "/dfa",
-    TM_PAGE: "/tm"
-};
-
-const BASE_PATH = "/Automata-Playground";
-
 class MyApp extends react.Component {
     constructor(props) {
         super(props);
         this.state = {
+            currentAutomataType: "",
+            
             isAsideShow: false,
 
             isExampleDialogShow: false,
@@ -55,10 +51,25 @@ class MyApp extends react.Component {
             dialogAffair: DIALOG_AFFAIRS.CONFIRM_CLEAR_ALL,
 
             exampleJsonUrl: ""
-        }
+        };
+        
+        // auto update automata type name when router change completes
+        Router.events.on("routeChangeComplete", this.setAutomataTypeName);
     }
+    
+    componentDidMount = () => {
+        // set automata type name on first render
+        this.setAutomataTypeName();
+    };
 
     automataPageRef = react.createRef();
+
+    ///////////////////////////////// Helper functions /////////////////////////////////
+    setAutomataTypeName = () => {
+        this.setState({
+            currentAutomataType: getAutomataTypeNameByPathname(Router.pathname)
+        });
+    };
 
     hideAside = () => {
         this.setState({
@@ -339,7 +350,9 @@ class MyApp extends react.Component {
                         <i className={classnames(styles.iMenuIcon, "fa-solid fa-bars")}></i>
                     </span>
 
-                    <span className={styles.spanTitle}>HIT Automata Playground</span>
+                    <span className={styles.spanTitle}>
+                        HIT Automata Playground - {this.state.currentAutomataType}
+                    </span>
                 </nav>
 
                 <aside className={classnames(

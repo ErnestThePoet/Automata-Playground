@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 
 import classnames from "classnames";
@@ -10,6 +11,11 @@ import { adjustPropertyEditorPosition, isMobileBrowser } from "modules/utilities
 
 // props requires appState, dfaInstance, propertyEditorData
 export default observer(props => {
+    // select first input text on first render
+    useEffect(() => {
+        document.getElementById("in-property-editor-first-input").select();
+    }, []);
+
     const onPropertyInput = e => {
         props.propertyEditorData.setEditorInputText(e.target.value, 0);
         switch (props.appState.currentState) {
@@ -145,6 +151,7 @@ export default observer(props => {
             </label>
             
             <input
+                id="in-property-editor-first-input"
                 className={styles.inPropertyInput}
                 style={props.propertyEditorData.isInvalidInputWarningShow ? { borderColor: "red", color: "red" } : {}}
                 type="text"
