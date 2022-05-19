@@ -9,7 +9,8 @@ export const AUTOMATA_TYPES = {
 // used for UI display
 export const AUTOMATA_TYPE_NAMES = {
     DFA: "DFA",
-    TM: "TM"
+    TM: "TM",
+    UNKNOWN:""
 };
 
 export function getAutomataTypeNameByPathname(pathname) {

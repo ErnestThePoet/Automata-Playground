@@ -67,8 +67,12 @@ export const checkInputValidity = (appState,propertyEditorData,tmInstance) => {
 // props requires appState, tmInstance, propertyEditorData
 export default observer(props => {
     // select first input text on first render
+    // not enabled for mobile users because input method window will flash out,
+    // creating a messy experience.
     useEffect(() => {
-        document.getElementById("in-property-editor-first-input").select();
+        if (!isMobileBrowser()) {
+            document.getElementById("in-property-editor-first-input").select();
+        }
     }, []);
 
     const onPropertyInput = e => {

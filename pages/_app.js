@@ -5,7 +5,11 @@ import Router from "next/router";
 
 import { parseAutomataJson, getAutomataType } from "modules/automata-json";
 
-import { AUTOMATA_TYPES, getAutomataTypeNameByPathname } from "modules/automata-types";
+import {
+    AUTOMATA_TYPES,
+    AUTOMATA_TYPE_NAMES,
+    getAutomataTypeNameByPathname
+} from "modules/automata-types";
 import { PAGE_PATHS, BASE_PATH } from "modules/router-paths";
 
 import Dialog from "components/dialog";
@@ -33,9 +37,9 @@ class MyApp extends react.Component {
     constructor(props) {
         super(props);
         this.state = {
-            // prefix is included because we don't want users to see 
-            // "HIT Automata Playground - " when loading.
-            currentAutomataTypeWithPrefix: "",
+            // this is the source for automata type display on navbar.
+            // set to UNKNOWN to show nothing when page is loading.
+            currentAutomataTypeName: AUTOMATA_TYPE_NAMES.UNKNOWN,
             
             isAsideShow: false,
 
@@ -69,8 +73,7 @@ class MyApp extends react.Component {
     ///////////////////////////////// Helper functions /////////////////////////////////
     setAutomataTypeName = () => {
         this.setState({
-            currentAutomataTypeWithPrefix:
-                " - " + getAutomataTypeNameByPathname(Router.pathname)
+            currentAutomataTypeName:getAutomataTypeNameByPathname(Router.pathname)
         });
     };
 
@@ -353,8 +356,13 @@ class MyApp extends react.Component {
                         <i className={classnames(styles.iMenuIcon, "fa-solid fa-bars")}></i>
                     </span>
 
+                    {/* prefix is included because we don't want users to see 
+                    "HIT Automata Playground - " when loading.*/}
                     <span className={styles.spanTitle}>
-                        HIT Automata Playground{this.state.currentAutomataTypeWithPrefix}
+                        HIT Automata Playground
+                        {this.state.currentAutomataTypeName === AUTOMATA_TYPE_NAMES.UNKNOWN
+                            ? ""
+                            : ` - ${this.state.currentAutomataTypeName}`}
                     </span>
                 </nav>
 
