@@ -33,7 +33,9 @@ class MyApp extends react.Component {
     constructor(props) {
         super(props);
         this.state = {
-            currentAutomataType: "",
+            // prefix is included because we don't want users to see 
+            // "HIT Automata Playground - " when loading.
+            currentAutomataTypeWithPrefix: "",
             
             isAsideShow: false,
 
@@ -67,7 +69,8 @@ class MyApp extends react.Component {
     ///////////////////////////////// Helper functions /////////////////////////////////
     setAutomataTypeName = () => {
         this.setState({
-            currentAutomataType: getAutomataTypeNameByPathname(Router.pathname)
+            currentAutomataTypeWithPrefix:
+                " - " + getAutomataTypeNameByPathname(Router.pathname)
         });
     };
 
@@ -351,7 +354,7 @@ class MyApp extends react.Component {
                     </span>
 
                     <span className={styles.spanTitle}>
-                        HIT Automata Playground - {this.state.currentAutomataType}
+                        HIT Automata Playground{this.state.currentAutomataTypeWithPrefix}
                     </span>
                 </nav>
 
