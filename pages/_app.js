@@ -73,7 +73,7 @@ class MyApp extends react.Component {
     this.setAutomataTypeName();
 
     // open mirror dialog on first visit
-    if (localStorage.getItem("visited") !== null) {
+    if (localStorage.getItem("visited") === null) {
       this.setState({
         isMirrorDialogShow: true,
       });
@@ -320,6 +320,8 @@ class MyApp extends react.Component {
           <br />
           哈尔滨工业大学 120L021615 崔子健
           <br />
+          QQ: 1326899636
+          <br />
           <div style={{ marginTop: 7 }}>
             项目地址：
             <a href="https://github.com/ErnestThePoet/Automata-Playground">
@@ -519,7 +521,8 @@ class MyApp extends react.Component {
             title="国内镜像可用"
             closeDialog={() => this.setState({ isMirrorDialogShow: false })}
           >
-            如果访问较慢，可以进入国内的
+            如果此站点访问较慢，可以改用国内的
+            <br />
             <a href={MIRROR_URL}>Gitee Pages镜像</a>
           </Dialog>
         )}
