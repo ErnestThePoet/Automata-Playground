@@ -5,8 +5,8 @@ const nextConfig = {
   // We still need to manually add /Automata-Playground for favicon in index.html after build,
   // or add it to _document.js before build.
   // Also, don't forget to copy .nojekyll to export folder after build.
-  basePath: "/Automata-Playground",
-  assetPrefix: "/Automata-Playground"
+  basePath: "/automata-playground",
+  assetPrefix: "/automata-playground"
 }
 
 module.exports = nextConfig
