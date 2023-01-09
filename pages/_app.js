@@ -31,7 +31,10 @@ const DIALOG_AFFAIRS = {
   CONFIRM_LOAD_EXAMPLE: 2,
   CONFIRM_LOAD_FILE: 3,
   CONFIRM_CLEAR_ALL: 4,
+  CONFIRM_GOTO_MIRROR: 5,
 };
+
+const MIRROR_URL = "https://ecui.gitee.io/automata-playground";
 
 class MyApp extends react.Component {
   constructor(props) {
@@ -70,10 +73,12 @@ class MyApp extends react.Component {
     this.setAutomataTypeName();
 
     // open mirror dialog on first visit
-    if (localStorage) {
+    if (localStorage.getItem("visited") !== null) {
       this.setState({
         isMirrorDialogShow: true,
       });
+
+      localStorage.setItem("visited", "true");
     }
   };
 
@@ -129,6 +134,10 @@ class MyApp extends react.Component {
 
       case DIALOG_AFFAIRS.CONFIRM_LOAD_EXAMPLE:
         this.loadExample();
+        break;
+
+      case DIALOG_AFFAIRS.CONFIRM_GOTO_MIRROR:
+        window.location.assign(MIRROR_URL);
         break;
     }
 
@@ -279,6 +288,20 @@ class MyApp extends react.Component {
     this.setState({
       yesNoDialogTitle: "清空",
       yesNoDialogMessage: "确定清空当前自动机吗？",
+      isYesNoDialogShow: true,
+    });
+  };
+
+  onGoToMirrorClick = () => {
+    if (this.automataPageRef.current.isAutomataEmpty()) {
+      window.location.assign(MIRROR_URL);
+      return;
+    }
+
+    this.data.dialogAffair = DIALOG_AFFAIRS.CONFIRM_GOTO_MIRROR;
+    this.setState({
+      yesNoDialogTitle: "国内镜像",
+      yesNoDialogMessage: "当前自动机将会丢失。继续跳转吗？",
       isYesNoDialogShow: true,
     });
   };
@@ -439,6 +462,10 @@ class MyApp extends react.Component {
               <i className="fa-solid fa-xmark"></i>
               清空
             </li>
+            <li onClick={this.onGoToMirrorClick}>
+              <i className="fa-solid fa-bolt"></i>
+              国内镜像
+            </li>
             <li onClick={this.onAboutClick}>
               <i className="fa-solid fa-circle-info"></i>
               关于
@@ -489,13 +516,11 @@ class MyApp extends react.Component {
 
         {this.state.isMirrorDialogShow && (
           <Dialog
-            title="镜像可用"
+            title="国内镜像可用"
             closeDialog={() => this.setState({ isMirrorDialogShow: false })}
           >
-            如果访问较慢，可以进入
-            <a href="https://ecui.gitee.io/automata-playground">
-              Gitee Pages镜像
-            </a>
+            如果访问较慢，可以进入国内的
+            <a href={MIRROR_URL}>Gitee Pages镜像</a>
           </Dialog>
         )}
 
