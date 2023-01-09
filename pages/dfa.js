@@ -20,6 +20,8 @@ import DfaRunPanel from "components/dfa/dfa-run-panel";
 import { handleGraphClick,handleGraphDragEnd } from "modules/dfa/dfa-page-operations";
 import { initGraph, updateGraph } from "modules/graph-operations";
 
+import { isAppleBrowser } from "modules/utilities";
+
 import styles from "styles/dfa-tm.module.scss";
 import appStyles from "styles/app.module.scss";
 
@@ -154,9 +156,11 @@ export default class DfaPage extends react.Component {
                 className={styles.dfaPropertyEditor}
                 style={{
                     top: propertyEditorData.isPropertyEditorPositionAdjusted
+                        || isAppleBrowser()
                         ? propertyEditorData.propertyEditorTop
                         :0,
                     left: propertyEditorData.isPropertyEditorPositionAdjusted
+                        || isAppleBrowser()
                         ? propertyEditorData.propertyEditorLeft
                         :0
                     }} />
@@ -164,6 +168,11 @@ export default class DfaPage extends react.Component {
             {/* on mobile browsers, if we place property editor out of window boundary,
                 then the window will be scaled to fit it in. So before we adjust its position,
                 we place it on left-top to make proper adjustment.*/}
+            
+            {/* on apple browsers, after PropertyEditor is rendered, componentDidUpdate
+                won't be triggered, and so PropertyEditor will always stay at left:0, top:0.
+                Current solution is to ignore position adjustment and use unadjusted position
+                directly on apple browsers.*/}
             
             <AutomataToolbar
                 appState={appState}
