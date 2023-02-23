@@ -35,6 +35,16 @@
         "type": "DFA"
     },
     {
+        "title": "识别C语言不带符号的十进制数字的DFA",
+        "url": "/examples/dfa-c-number.json",
+        "type": "DFA"
+    },
+    {
+        "title": "识别C语言各进制整数的DFA",
+        "url": "/examples/dfa-c-int.json",
+        "type": "DFA"
+    },
+    {
         "title":"接受0n1n的图灵机",
         "url":"/examples/tm-0n1n.json",
         "type":"TM"
