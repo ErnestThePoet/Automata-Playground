@@ -97,7 +97,7 @@ class MyApp extends react.Component {
     });
   };
 
-  closeDialog = (yes) => {
+  closeDialog = yes => {
     if (!yes) {
       this.setState({
         isYesNoDialogShow: false,
@@ -161,10 +161,10 @@ class MyApp extends react.Component {
     this.hideAside();
   };
 
-  importAutomataJsonString = (jsonString) => {
+  importAutomataJsonString = jsonString => {
     const automataData = parseAutomataJson(
       jsonString,
-      this.automataPageRef.current.pageAlertData
+      this.automataPageRef.current.pageAlertData,
     );
 
     if (automataData) {
@@ -185,7 +185,7 @@ class MyApp extends react.Component {
 
         default:
           this.automataPageRef.current.pageAlertData.showAlertAnimated(
-            "自动机类型不受支持"
+            "自动机类型不受支持",
           );
           break;
       }
@@ -198,10 +198,10 @@ class MyApp extends react.Component {
     });
 
     fetch(BASE_PATH + this.data.exampleJsonUrl)
-      .then((res) => {
+      .then(res => {
         return res.text();
       })
-      .then((res) => {
+      .then(res => {
         this.importAutomataJsonString(res);
       });
   };
@@ -237,10 +237,10 @@ class MyApp extends react.Component {
 
   onOnlineExamplesClick = () => {
     fetch(BASE_PATH + "/example-list.json")
-      .then((res) => {
+      .then(res => {
         return res.text();
       })
-      .then((res) => {
+      .then(res => {
         this.setState({
           isExampleDialogShow: true,
           exampleList: JSON.parse(res),
@@ -271,7 +271,7 @@ class MyApp extends react.Component {
     }
 
     const stringUrl = URL.createObjectURL(
-      new Blob([automataJsonString], { type: "application/json" })
+      new Blob([automataJsonString], { type: "application/json" }),
     );
 
     const anchor = document.createElement("a");
@@ -320,8 +320,6 @@ class MyApp extends react.Component {
           <br />
           哈尔滨工业大学 120L021615 崔子健
           <br />
-          QQ: 1326899636
-          <br />
           <div style={{ marginTop: 7 }}>
             项目地址：
             <a href="https://github.com/ErnestThePoet/Automata-Playground">
@@ -329,8 +327,7 @@ class MyApp extends react.Component {
             </a>
             <a
               style={{ marginLeft: 7 }}
-              href="https://gitee.com/ecui/automata-playground"
-            >
+              href="https://gitee.com/ecui/automata-playground">
               Gitee
             </a>
           </div>
@@ -344,7 +341,7 @@ class MyApp extends react.Component {
   };
 
   ///////////////////////////////// Sub-handlers /////////////////////////////////
-  onExampleItemClick = (url) => {
+  onExampleItemClick = url => {
     this.data.exampleJsonUrl = url;
 
     if (this.automataPageRef.current.isAutomataEmpty()) {
@@ -362,14 +359,14 @@ class MyApp extends react.Component {
   };
 
   // must not use func(){} syntax or this will not point to this component.
-  onFileInputChange = (e) => {
+  onFileInputChange = e => {
     if (e.target.files.length === 0) {
       return;
     }
 
     const fileReader = new FileReader();
     fileReader.readAsText(e.target.files[0]);
-    fileReader.onload = (res) => {
+    fileReader.onload = res => {
       this.importAutomataJsonString(res.target.result);
 
       // clear file value to ensure onchange will be triggered again
@@ -386,27 +383,24 @@ class MyApp extends react.Component {
         className={styles.divMainWrapper}
         onClick={() => {
           this.setState({ isAsideShow: false });
-        }}
-      >
+        }}>
         <nav
           className={classnames(
             styles.navNav,
-            "d-flex justify-content-center align-items-center"
-          )}
-        >
+            "d-flex justify-content-center align-items-center",
+          )}>
           <span
             className={classnames(
               styles.spanMenuIconWrapper,
               "d-flex justify-content-center align-items-center",
-              this.state.isAsideShow ? styles.spanMenuIconWrapperActive : ""
+              this.state.isAsideShow ? styles.spanMenuIconWrapperActive : "",
             )}
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation();
-              this.setState((state) => ({
+              this.setState(state => ({
                 isAsideShow: !state.isAsideShow,
               }));
-            }}
-          >
+            }}>
             <i className={classnames(styles.iMenuIcon, "fa-solid fa-bars")}></i>
           </span>
 
@@ -423,12 +417,11 @@ class MyApp extends react.Component {
         <aside
           className={classnames(
             styles.asideFunctionNav,
-            this.state.isAsideShow ? styles.asideFunctionNavShow : ""
+            this.state.isAsideShow ? styles.asideFunctionNavShow : "",
           )}
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
-          }}
-        >
+          }}>
           <ul>
             <li onClick={this.onNewDfaClick}>
               <i className="fa-solid fa-plus"></i>
@@ -478,8 +471,7 @@ class MyApp extends react.Component {
         {this.state.isYesNoDialogShow && (
           <Dialog
             title={this.state.yesNoDialogTitle}
-            closeDialog={this.closeDialog}
-          >
+            closeDialog={this.closeDialog}>
             {this.state.yesNoDialogMessage}
           </Dialog>
         )}
@@ -489,20 +481,17 @@ class MyApp extends react.Component {
             className={exampleDialogStyles.divDialogContentWrapper}
             title={`在线示例 (${this.state.exampleList.length})`}
             noButton
-            closeDialog={() => this.setState({ isExampleDialogShow: false })}
-          >
+            closeDialog={() => this.setState({ isExampleDialogShow: false })}>
             <div
               className={classnames(
                 exampleDialogStyles.divExampleListWrapper,
-                "d-flex flex-column"
-              )}
-            >
+                "d-flex flex-column",
+              )}>
               {this.state.exampleList.map((x, i) => (
                 <div
                   key={i}
                   className={exampleDialogStyles.divSingleExampleWrapper}
-                  onClick={() => this.onExampleItemClick(x.url)}
-                >
+                  onClick={() => this.onExampleItemClick(x.url)}>
                   <i className="fa-solid fa-tag"></i>
                   <span className={exampleDialogStyles.spanExampleTitle}>
                     {x.title}
@@ -519,8 +508,7 @@ class MyApp extends react.Component {
         {this.state.isMirrorDialogShow && (
           <Dialog
             title="国内镜像可用"
-            closeDialog={() => this.setState({ isMirrorDialogShow: false })}
-          >
+            closeDialog={() => this.setState({ isMirrorDialogShow: false })}>
             如果此站点访问较慢，可以改用国内的
             <br />
             <a href={MIRROR_URL}>Gitee Pages镜像</a>
